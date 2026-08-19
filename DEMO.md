@@ -107,7 +107,7 @@ executions).
 - 68 prompts, default sort newest-updated, paged 24 at a time.
 - Status badges in uppercase: `PUBLISHED` (44), `APPROVED` (8), `DRAFT` (8),
   `UNDER_REVIEW` (4), `DEPRECATED` (4).
-- Filters work: **Application = Outlook** narrows to the Outlook prompts;
+- Filters work: **Business area = EXECUTIVE** narrows to executive prompts;
   **Risk level = HIGH** shows 4 prompts.
 
 ### 4.2 Open a prompt
