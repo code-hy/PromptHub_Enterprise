@@ -37,7 +37,7 @@ def evaluate(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    return governance_service.evaluate_governance(db, data, actor=user)
+    return governance_service.evaluate_governance(db, data, record_violations=False, actor=user)
 
 
 @router.get("/violations")

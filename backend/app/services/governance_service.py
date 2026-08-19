@@ -220,20 +220,29 @@ def governance_summary(db: Session) -> dict[str, Any]:
         {"name": name, "count": count}
         for name, count in Counter(p.risk_level for p in prompts).most_common()
     ]
-    violations = [
-        {
-            "id": v.id,
-            "violation_id": v.violation_id,
-            "policy_id": v.policy_id,
-            "message": v.message,
-            "severity": v.severity,
-            "created_at": v.created_at,
-        }
-        for v in db.query(ComplianceViolation)
+    all_violations = (
+        db.query(ComplianceViolation)
         .order_by(ComplianceViolation.created_at.desc())
-        .limit(20)
         .all()
-    ]
+    )
+    seen_policies: set[str] = set()
+    violations: list[dict] = []
+    for v in all_violations:
+        if v.policy_id in seen_policies:
+            continue
+        seen_policies.add(v.policy_id)
+        violations.append(
+            {
+                "id": v.id,
+                "violation_id": v.violation_id,
+                "policy_id": v.policy_id,
+                "message": v.message,
+                "severity": v.severity,
+                "created_at": v.created_at,
+            }
+        )
+        if len(violations) >= 10:
+            break
     return {
         "total_prompts": total,
         "published": published,
