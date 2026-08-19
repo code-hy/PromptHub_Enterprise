@@ -313,7 +313,12 @@ KPIs, board decks) to attach.
 
 ### 9.2 Run one
 
-**Action:** open **Inbox Zero**, provide input, run.
+**Action:** open **Inbox Zero**, click **Configure & run**, fill in the input
+form, then click **Run workflow**.
+
+The form shows the inputs derived from the workflow's step mappings — for Inbox
+Zero: `emails` (paste the email backlog) and `recipient` (who should receive
+follow-ups).
 
 ```bash
 curl -s -X POST http://localhost:8000/api/v1/workflows/WORKFLOW-000003/run \
