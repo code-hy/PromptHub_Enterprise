@@ -33,7 +33,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Prompts" value={overview?.prompt_count ?? 0} sub={`${overview?.published_count ?? 0} published`} />
-        <StatCard label="Executions" value={overview?.execution_count ?? 0} sub={`${Math.round((overview?.success_rate ?? 0) * 100)}% success`} />
+        <StatCard label="Executions" value={overview?.execution_count ?? 0} sub={`${Math.round(overview?.success_rate ?? 0)}% success`} />
         <StatCard
           label="Minutes saved"
           value={Math.round(overview?.estimated_time_saved_minutes ?? 0)}

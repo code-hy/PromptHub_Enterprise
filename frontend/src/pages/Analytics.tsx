@@ -33,7 +33,7 @@ export default function Analytics() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Executions" value={o.execution_count ?? 0} sub={`${(o.success_rate ?? 0) * 100}% success`} />
+        <StatCard label="Executions" value={o.execution_count ?? 0} sub={`${Math.round(o.success_rate ?? 0)}% success`} />
         <StatCard label="Minutes saved" value={Math.round(o.estimated_time_saved_minutes ?? 0)} />
         <StatCard label="Avg latency" value={`${Math.round(o.avg_latency_ms ?? 0)} ms`} sub={`${o.avg_tokens ?? 0} tokens avg`} />
         <StatCard label="Avg rating" value={`${(o.avg_rating ?? 0).toFixed(2)} ★`} sub={`${o.rating_count ?? 0} ratings`} />
