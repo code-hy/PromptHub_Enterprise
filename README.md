@@ -19,6 +19,9 @@ Contoso M365 demo dataset.
 
 ## Documentation
 
+- **[WALKTHROUGH.md](WALKTHROUGH.md)** — detailed explainer for non-technical
+  readers: what the app does, how every technology works (React, FastAPI,
+  SQLAlchemy, LLMs, RAG, quality engine, governance), with examples.
 - **[DEMO.md](DEMO.md)** — guided demo runbook: boot → explore → build → test →
   govern → run, with the exact actions and expected results.
 - **[USERGUIDE.md](USERGUIDE.md)** — end-user guide: setup, configuration, every
