@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { catalogApi, promptsApi } from "../api";
 import type { PromptSummary } from "../api/types";
 import { Badge, Card, Empty, Spinner, StatusBadge } from "../components/ui";
@@ -8,9 +8,10 @@ import { Badge, Card, Empty, Spinner, StatusBadge } from "../components/ui";
 const PAGE_SIZE = 12;
 
 export default function Library() {
+  const location = useLocation();
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState(params.get("q") ?? "");
-  const page = Number(params.get("page") ?? 1);
+  const page = Number(new URLSearchParams(location.search).get("page") ?? 1);
 
   const filters = useMemo(
     () => ({
@@ -24,7 +25,7 @@ export default function Library() {
       page,
       page_size: PAGE_SIZE,
     }),
-    [search, params],
+    [search, params, page],
   );
 
   const { data, isLoading, isFetching } = useQuery({
@@ -37,7 +38,7 @@ export default function Library() {
     const next = new URLSearchParams(params);
     if (value) next.set(key, value);
     else next.delete(key);
-    next.set("page", "1");
+    if (key !== "page") next.set("page", "1");
     setParams(next);
   };
 
