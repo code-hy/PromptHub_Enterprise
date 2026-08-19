@@ -19,6 +19,8 @@ Contoso M365 demo dataset.
 
 ## Documentation
 
+- **[DEMO.md](DEMO.md)** — guided demo runbook: boot → explore → build → test →
+  govern → run, with the exact actions and expected results.
 - **[USERGUIDE.md](USERGUIDE.md)** — end-user guide: setup, configuration, every
   screen, and step-by-step scenarios.
 - **[TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)** — architecture: the technology
