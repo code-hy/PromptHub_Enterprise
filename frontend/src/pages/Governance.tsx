@@ -145,7 +145,7 @@ export default function Governance() {
               ))}
               {evalOut.decisions.map((d, i) => (
                 <div key={i} className="rounded-md bg-slate-50 p-2 text-xs text-slate-600">
-                  {String(d.policy ?? d.policy_name)} → <b>{String(d.decision ?? d.action)}</b>
+                  {String(d.type ?? d.policy ?? d.policy_name)} → <b>{String(d.label ?? d.decision ?? d.action)}</b>
                 </div>
               ))}
             </div>

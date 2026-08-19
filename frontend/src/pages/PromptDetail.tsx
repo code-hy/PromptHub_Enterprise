@@ -260,7 +260,7 @@ export default function PromptDetailPage() {
                 ))}
                 {gov.decisions.map((d, i) => (
                   <div key={i} className="rounded-md bg-slate-50 p-2 text-xs text-slate-600">
-                    {String(d.policy_name ?? d.policy)} → {String(d.decision ?? d.action)}
+                    {String(d.type ?? d.policy_name ?? d.policy)} → {String(d.label ?? d.decision ?? d.action)}
                   </div>
                 ))}
               </div>
