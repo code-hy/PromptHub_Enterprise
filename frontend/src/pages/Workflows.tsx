@@ -5,18 +5,35 @@ import { workflowsApi } from "../api";
 import type { WorkflowExecutionOut, WorkflowOut } from "../api/types";
 import { Badge, Button, Card, Empty, Spinner, StatusBadge } from "../components/ui";
 
+function extractWorkflowInputs(wf: WorkflowOut): string[] {
+  const inputs = new Set<string>();
+  for (const step of wf.steps) {
+    for (const target of Object.values(step.input_mapping)) {
+      if (target.startsWith("input.")) {
+        inputs.add(target.slice(6));
+      }
+    }
+  }
+  return Array.from(inputs);
+}
+
 export default function Workflows() {
   const { data: list, isLoading } = useQuery({ queryKey: ["workflows"], queryFn: workflowsApi.list });
   const [running, setRunning] = useState<WorkflowExecutionOut | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [configuring, setConfiguring] = useState<WorkflowOut | null>(null);
+  const [inputValues, setInputValues] = useState<Record<string, string>>({});
 
   const run = useMutation({
-    mutationFn: (wf: WorkflowOut) => workflowsApi.run(wf.workflow_id, { input_data: {} }),
-    onMutate: (wf) => setBusyId(wf.id),
+    mutationFn: ({ wf, inputs }: { wf: WorkflowOut; inputs: Record<string, string> }) =>
+      workflowsApi.run(wf.workflow_id, { input_data: inputs }),
+    onMutate: () => setBusyId(configuring?.id ?? null),
     onSuccess: (exec) => {
       setRunning(exec);
       setBusyId(null);
+      setConfiguring(null);
+      setInputValues({});
     },
     onError: (e) => {
       setError(e instanceof Error ? e.message : "Run failed");
@@ -65,6 +82,40 @@ export default function Workflows() {
         </Card>
       )}
 
+      {configuring && (
+        <Card title={`Configure: ${configuring.name}`}>
+          <p className="mb-3 text-sm text-slate-500">{configuring.description}</p>
+          <div className="space-y-3">
+            {extractWorkflowInputs(configuring).map((key) => (
+              <div key={key}>
+                <label className="mb-1 block text-sm font-medium text-slate-700">{key}</label>
+                <textarea
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+                  rows={3}
+                  placeholder={`Enter ${key}…`}
+                  value={inputValues[key] ?? ""}
+                  onChange={(e) => setInputValues((prev) => ({ ...prev, [key]: e.target.value }))}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex gap-2">
+            <Button
+              disabled={busyId === configuring.id}
+              onClick={() => run.mutate({ wf: configuring, inputs: inputValues })}
+            >
+              {busyId === configuring.id ? "Running…" : "Run workflow"}
+            </Button>
+            <button
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+              onClick={() => { setConfiguring(null); setInputValues({}); }}
+            >
+              Cancel
+            </button>
+          </div>
+        </Card>
+      )}
+
       {!list || list.items.length === 0 ? (
         <Card>
           <Empty message="No workflows defined." />
@@ -104,8 +155,8 @@ export default function Workflows() {
                   </li>
                 ))}
               </ol>
-              <Button className="mt-3 w-full" disabled={busyId === wf.id} onClick={() => run.mutate(wf)}>
-                {busyId === wf.id ? "Running…" : `Run workflow`}
+              <Button className="mt-3 w-full" onClick={() => { setConfiguring(wf); setInputValues({}); }}>
+                Configure & run
               </Button>
             </div>
           ))}
