@@ -1,0 +1,68 @@
+"""Seed users with roles per spec section 4 and 50."""
+
+USERS: list[dict] = [
+    {
+        "username": "henry",
+        "display_name": "Henry",
+        "email": "henry@contoso.local",
+        "department": "DATA_ANALYTICS",
+        "title": "Enterprise Data Architect",
+        "role": "ADMIN",
+    },
+    {
+        "username": "sarah.chen",
+        "display_name": "Sarah Chen",
+        "email": "sarah.chen@contoso.local",
+        "department": "PROJECT_MANAGEMENT",
+        "title": "Programme Director",
+        "role": "REVIEWER",
+    },
+    {
+        "username": "david.okafor",
+        "display_name": "David Okafor",
+        "email": "david.okafor@contoso.local",
+        "department": "IT",
+        "title": "Head of IT Service Delivery",
+        "role": "ADMIN",
+    },
+    {
+        "username": "emily.wilson",
+        "display_name": "Emily Wilson",
+        "email": "emily.wilson@contoso.local",
+        "department": "FINANCE",
+        "title": "Financial Controller",
+        "role": "AUTHOR",
+    },
+    {
+        "username": "marco.rossi",
+        "display_name": "Marco Rossi",
+        "email": "marco.rossi@contoso.local",
+        "department": "HR",
+        "title": "HR Business Partner",
+        "role": "AUTHOR",
+    },
+    {
+        "username": "priya.sharma",
+        "display_name": "Priya Sharma",
+        "email": "priya.sharma@contoso.local",
+        "department": "RISK",
+        "title": "Enterprise Risk Manager",
+        "role": "REVIEWER",
+    },
+    {
+        "username": "james.taylor",
+        "display_name": "James Taylor",
+        "email": "james.taylor@contoso.local",
+        "department": "SALES",
+        "title": "Sales Enablement Lead",
+        "role": "USER",
+    },
+    {
+        "username": "olivia.brown",
+        "display_name": "Olivia Brown",
+        "email": "olivia.brown@contoso.local",
+        "department": "LEGAL",
+        "title": "General Counsel",
+        "role": "GOVERNANCE",
+    },
+]
