@@ -13,16 +13,15 @@ export default function Analytics() {
 
   const byDay = (o.executions_by_day ?? []).map((d) => ({
     date: String(d.date ?? "").slice(5, 10) || String(d.date ?? ""),
-    executions: Number(d.executions ?? 0),
+    executions: Number(d.count ?? 0),
   }));
   const top = (o.top_prompts ?? []).map((p) => ({
-    name: String(p.name ?? p.prompt_id ?? "").slice(0, 18),
-    executions: Number(p.executions ?? p.execution_count ?? 0),
-    minutes: Number(p.time_saved ?? 0),
+    name: String(p.name ?? "").slice(0, 18),
+    executions: Number(p.count ?? 0),
   }));
   const byCategory = (o.execution_by_category ?? []).map((c) => ({
-    name: String(c.category ?? c.status ?? "other"),
-    value: Number(c.executions ?? c.count ?? 0),
+    name: String(c.name ?? "other"),
+    value: Number(c.count ?? 0),
   }));
 
   return (

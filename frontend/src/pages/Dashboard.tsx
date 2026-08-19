@@ -68,7 +68,7 @@ export default function Dashboard() {
                       </Link>
                       <div className="text-xs text-slate-400">{String(p.task ?? "")}</div>
                     </td>
-                    <td className="py-2">{String(p.executions ?? p.execution_count ?? 0)}</td>
+                    <td className="py-2">{String(p.count ?? 0)}</td>
                     <td className="py-2">{Math.round(Number(p.time_saved ?? 0))}</td>
                   </tr>
                 ))}

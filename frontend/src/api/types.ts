@@ -337,9 +337,9 @@ export type AnalyticsOverview = {
   estimated_time_saved_minutes: number;
   avg_latency_ms: number;
   avg_tokens: number;
-  top_prompts: Array<Record<string, string | number>>;
-  execution_by_category: Array<{ status?: string; count?: number; category?: string; executions?: number }>;
-  executions_by_day: Array<{ date?: string; executions?: number }>;
+  top_prompts: Array<{ name: string; count: number }>;
+  execution_by_category: Array<{ name: string; count: number }>;
+  executions_by_day: Array<{ date: string; count: number }>;
   model_usage: Array<Record<string, string | number>>;
   status_distribution: Array<Record<string, string | number>>;
 };
