@@ -17,6 +17,15 @@ Contoso M365 demo dataset.
 | **Analytics** | Execution volume, success rate, ratings, time saved, daily trend, top prompts and category breakdown. |
 | **Audit** | Immutable `audit_events` log for every mutation. |
 
+## Documentation
+
+- **[USERGUIDE.md](USERGUIDE.md)** — end-user guide: setup, configuration, every
+  screen, and step-by-step scenarios.
+- **[TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)** — architecture: the technology
+  stack, how each component fits the scheme of things, and data-flow walkthroughs.
+- **[IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)** — developer guide: how to
+  build, run, test, extend and production-harden the platform.
+
 ## Quick start
 
 ### Backend only (zero external services)
