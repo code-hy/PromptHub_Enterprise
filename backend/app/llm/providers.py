@@ -95,6 +95,8 @@ class OpenAICompatProvider(LLMProvider):
         return bool(self.api_key) or "localhost" in self.base_url or "127.0.0.1" in self.base_url
 
     def list_models(self) -> list[dict]:
+        if "127.0.0.1:8000" in self.base_url or "localhost:8000" in self.base_url:
+            return [{"name": self.model_name, "provider": self.name}]
         try:
             headers = {"Content-Type": "application/json"}
             if self.api_key:
