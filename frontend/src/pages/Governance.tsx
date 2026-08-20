@@ -32,7 +32,7 @@ export default function Governance() {
   if (isLoading) return <Spinner label="Loading governance…" />;
 
   const riskDist = (summary?.risk_distribution ?? []).map((r) => ({
-    level: String(r.level ?? r.risk_level ?? "?"),
+    level: String(r.name ?? "unknown"),
     count: Number(r.count ?? 0),
   }));
 
