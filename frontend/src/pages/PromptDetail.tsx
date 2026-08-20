@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
-import { executionApi, promptsApi } from "../api";
+import { catalogApi, executionApi, promptsApi } from "../api";
 import type { ExecutionOut, GovernanceEvaluationOut, VersionOut } from "../api/types";
 import { Badge, Button, Card, Empty, QualityRing, Spinner, StatusBadge } from "../components/ui";
 import { formatTime } from "../lib/format";
@@ -23,12 +23,15 @@ export default function PromptDetailPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [gov, setGov] = useState<GovernanceEvaluationOut | null>(null);
+  const [provider, setProvider] = useState("auto");
 
   const { data: prompt, isLoading, isError } = useQuery({
     queryKey: ["prompt", id],
     queryFn: () => promptsApi.get(id!),
     enabled: !!id,
   });
+  const { data: catalog } = useQuery({ queryKey: ["catalog"], queryFn: catalogApi.get });
+  const providerOptions = catalog?.providers ?? [];
   const { data: versions } = useQuery({
     queryKey: ["versions", id],
     queryFn: () => promptsApi.versions(id!),
@@ -55,6 +58,7 @@ export default function PromptDetailPage() {
         prompt_id: prompt.id,
         input_data: inputs,
         use_grounding: useGrounding,
+        model_provider: provider === "auto" ? null : provider,
       });
       setExecOutput(result);
     } catch (e) {
@@ -200,9 +204,29 @@ export default function PromptDetailPage() {
                 ))}
               </div>
             )}
+            <div className="mb-3">
+              <label className="block text-sm">
+                <span className="mb-0.5 flex items-center justify-between">
+                  <span className="font-medium text-slate-700">Provider</span>
+                  <span className="text-[10px] uppercase text-slate-400">LLM</span>
+                </span>
+                <select
+                  value={provider}
+                  onChange={(e) => setProvider(e.target.value)}
+                  className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none"
+                >
+                  <option value="auto">auto (Ollama if reachable, else mock)</option>
+                  {providerOptions.map((p) => (
+                    <option key={String(p.name)} value={String(p.name)}>
+                      {String(p.label ?? p.name)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
             <div className="flex gap-2">
               <Button disabled={busy} onClick={() => runExecution(false)}>
-                Run (mock)
+                Run
               </Button>
               <Button disabled={busy} variant="secondary" onClick={() => runExecution(true)}>
                 Run with grounding
