@@ -24,6 +24,7 @@ class UserSummary(ORMModel):
     role: str
     department: str = ""
     title: str = ""
+    is_active: bool = True
 
 
 class LoginRequest(BaseModel):

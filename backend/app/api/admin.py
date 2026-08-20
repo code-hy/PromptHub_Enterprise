@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -25,10 +25,13 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
+    display_name: str | None = None
+    email: str | None = None
     role: str | None = None
     department: str | None = None
     title: str | None = None
     is_active: bool | None = None
+    password: str | None = None
 
 
 def _summarize(user: User) -> UserSummary:
@@ -41,6 +44,7 @@ def _summarize(user: User) -> UserSummary:
         role=user.role,
         department=user.department,
         title=user.title,
+        is_active=user.is_active,
     )
 
 
@@ -83,8 +87,35 @@ def update_user(
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    for key, value in data.model_dump(exclude_unset=True).items():
+    updates = data.model_dump(exclude_unset=True)
+    password = updates.pop("password", None)
+    for key, value in updates.items():
         setattr(user, key, value)
+    if password:
+        user.password_hash = hash_password(password)
     db.commit()
     db.refresh(user)
     return _summarize(user)
+
+
+@router.delete("/users/{user_id}", response_model=dict)
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current: User = Depends(require_role("ADMIN")),
+):
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.id == current.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    # Prevent removing the last admin so there is always an admin account
+    if user.role == "ADMIN":
+        admin_count = db.scalar(
+            select(func.count()).select_from(User).where(User.role == "ADMIN")
+        )
+        if admin_count <= 1:
+            raise HTTPException(status_code=400, detail="Cannot delete the last admin account")
+    db.delete(user)
+    db.commit()
+    return {"ok": True}

@@ -364,4 +364,25 @@ export type UserSummary = {
   role: string;
   department: string;
   title: string;
+  is_active: boolean;
+};
+
+export type UserCreatePayload = {
+  username: string;
+  display_name: string;
+  email?: string;
+  department?: string;
+  title?: string;
+  role?: string;
+  password?: string;
+};
+
+export type UserUpdatePayload = {
+  display_name?: string;
+  email?: string;
+  role?: string;
+  department?: string;
+  title?: string;
+  is_active?: boolean;
+  password?: string;
 };

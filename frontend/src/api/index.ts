@@ -20,6 +20,8 @@ import type {
   PromptFlowAction,
   PromptListResponse,
   UserSummary,
+  UserCreatePayload,
+  UserUpdatePayload,
   VersionOut,
   WorkflowExecutionOut,
   WorkflowListResponse,
@@ -110,6 +112,9 @@ export type KnowledgeDocumentLike = {
 
 export const adminApi = {
   users: () => api.get<UserSummary[]>("/admin/users"),
+  create: (data: UserCreatePayload) => api.post<UserSummary>("/admin/users", data),
+  update: (id: number, data: UserUpdatePayload) => api.put<UserSummary>(`/admin/users/${id}`, data),
+  remove: (id: number) => api.del<{ ok: boolean }>(`/admin/users/${id}`),
 };
 
 function toQuery(params?: Record<string, string | number | boolean | undefined>): string {
