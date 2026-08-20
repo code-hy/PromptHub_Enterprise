@@ -14,13 +14,20 @@ router = APIRouter(prefix="/audit", tags=["audit"])
 def list_audit(
     event_type: str | None = None,
     entity_type: str | None = None,
+    entity_ref: str | None = None,
     actor: str | None = None,
     limit: int = Query(100, ge=1, le=500),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
 ):
     items, total = audit_service.list_events(
-        db, event_type=event_type, entity_type=entity_type, actor=actor, limit=limit, offset=offset
+        db,
+        event_type=event_type,
+        entity_type=entity_type,
+        entity_ref=entity_ref,
+        actor=actor,
+        limit=limit,
+        offset=offset,
     )
     return AuditListResponse(items=items, total=total)
 

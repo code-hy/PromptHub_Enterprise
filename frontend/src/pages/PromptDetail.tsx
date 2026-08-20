@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
-import { catalogApi, executionApi, promptsApi } from "../api";
+import { catalogApi, auditApi, executionApi, promptsApi } from "../api";
 import type { ExecutionOut, GovernanceEvaluationOut, VersionOut } from "../api/types";
 import { Badge, Button, Card, Empty, QualityRing, Spinner, StatusBadge } from "../components/ui";
 import { formatTime } from "../lib/format";
@@ -37,6 +37,16 @@ export default function PromptDetailPage() {
     queryFn: () => promptsApi.versions(id!),
     enabled: !!id,
   });
+  const { data: lifecycleEvents } = useQuery({
+    queryKey: ["prompt-lifecycle", id],
+    queryFn: () =>
+      auditApi.list({
+        entity_type: "PROMPT",
+        entity_ref: id!,
+        limit: 100,
+      }),
+    enabled: !!id,
+  });
 
   const flow = useMutation({
     mutationFn: ({ action, note }: { action: string; note: string }) =>
@@ -45,8 +55,26 @@ export default function PromptDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["prompt", id] });
       queryClient.invalidateQueries({ queryKey: ["prompts"] });
       queryClient.invalidateQueries({ queryKey: ["gov-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["prompt-lifecycle", id] });
     },
   });
+
+  const lifecycleSteps = useMemo(() => {
+    const order: Record<string, string> = {
+      PROMPT_SUBMITTED: "Submitted for Review",
+      PROMPT_APPROVED: "Approved",
+      PROMPT_REJECTED: "Rejected",
+      PROMPT_PUBLISHED: "Published",
+      PROMPT_DEPRECATED: "Deprecated",
+      PROMPT_RETIRED: "Retired",
+    };
+    const events = lifecycleEvents?.items ?? [];
+    const steps = events
+      .filter((e) => order[e.event_type])
+      .map((e) => ({ label: order[e.event_type], at: e.created_at }));
+    // Sort oldest → newest so the trail reads left to right
+    return steps.sort((a, b) => String(a.at ?? "").localeCompare(String(b.at ?? "")));
+  }, [lifecycleEvents]);
 
   const runExecution = async (useGrounding: boolean) => {
     if (!prompt) return;
@@ -253,6 +281,23 @@ export default function PromptDetailPage() {
           </Card>
 
           <Card title="Lifecycle">
+            {lifecycleSteps.length > 0 ? (
+              <div className="mb-4 flex flex-wrap items-center gap-1.5 text-sm">
+                {lifecycleSteps.map((s, i) => (
+                  <span key={i} className="flex items-center gap-1.5">
+                    {i > 0 && <span className="text-slate-400">→</span>}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                      <span>✓</span>
+                      {s.label}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="mb-4 text-sm text-slate-400">
+                No lifecycle actions yet. Current status: <span className="font-medium text-slate-600">{prompt?.status}</span>
+              </p>
+            )}
             <div className="flex flex-wrap gap-2">
               {FLOW_ACTIONS.map((a) => (
                 <Button

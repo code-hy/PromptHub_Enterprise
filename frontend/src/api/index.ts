@@ -90,7 +90,7 @@ export const analyticsApi = {
 };
 
 export const auditApi = {
-  list: (params?: { event_type?: string; entity_type?: string; actor?: string; limit?: number; offset?: number }) =>
+  list: (params?: { event_type?: string; entity_type?: string; entity_ref?: string; actor?: string; limit?: number; offset?: number }) =>
     api.get<AuditListResponse>("/audit" + toQuery(params)),
   recent: (limit = 25) => api.get<{ items: AuditEventOut[] }>(`/audit/recent?limit=${limit}`),
 };

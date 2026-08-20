@@ -35,6 +35,7 @@ def list_events(
     *,
     event_type: str | None = None,
     entity_type: str | None = None,
+    entity_ref: str | None = None,
     limit: int = 100,
     offset: int = 0,
     actor: str | None = None,
@@ -44,6 +45,8 @@ def list_events(
         query = query.filter(AuditEvent.event_type == event_type)
     if entity_type:
         query = query.filter(AuditEvent.entity_type == entity_type)
+    if entity_ref:
+        query = query.filter(AuditEvent.entity_ref == entity_ref)
     if actor:
         query = query.filter(AuditEvent.actor.ilike(f"%{actor}%"))
     total = query.count()
