@@ -69,11 +69,17 @@ export default function PromptDetailPage() {
       PROMPT_RETIRED: "Retired",
     };
     const events = lifecycleEvents?.items ?? [];
-    const steps = events
-      .filter((e) => order[e.event_type])
-      .map((e) => ({ label: order[e.event_type], at: e.created_at }));
+    // Deduplicate: keep only the latest occurrence of each event type
+    const seen = new Set<string>();
+    const unique: { label: string; at: string | null }[] = [];
+    for (const e of events) {
+      if (order[e.event_type] && !seen.has(e.event_type)) {
+        seen.add(e.event_type);
+        unique.push({ label: order[e.event_type], at: e.created_at });
+      }
+    }
     // Sort oldest → newest so the trail reads left to right
-    return steps.sort((a, b) => String(a.at ?? "").localeCompare(String(b.at ?? "")));
+    return unique.sort((a, b) => String(a.at ?? "").localeCompare(String(b.at ?? "")));
   }, [lifecycleEvents]);
 
   const runExecution = async (useGrounding: boolean) => {
