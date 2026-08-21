@@ -326,19 +326,23 @@ export default function PromptDetailPage() {
             {busy && <Spinner label="Executing…" />}
             {error && <p className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-600">{error}</p>}
             {execOutput && (
-              <div className="mt-3 rounded-md border border-slate-100 p-3">
-                <div className="mb-1 flex items-center justify-between">
+              <div className="mt-3 flex max-h-[55vh] flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+                <div className="flex shrink-0 items-center justify-between border-b border-slate-100 bg-slate-50 px-3 py-2">
                   <StatusBadge status={execOutput.status} />
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs tabular-nums text-slate-500">
                     {execOutput.provider}/{execOutput.model} · {execOutput.latency_ms} ms · {execOutput.tokens} tok
                   </span>
                 </div>
-                <pre className="code text-slate-700">{execOutput.output}</pre>
-                {execOutput.sources_used.length > 0 && (
-                  <div className="mt-2 text-xs text-slate-500">
-                    Sources: {execOutput.sources_used.join(", ")}
-                  </div>
-                )}
+                <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3">
+                  <pre className="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-slate-700">
+                    {execOutput.output}
+                  </pre>
+                  {execOutput.sources_used.length > 0 && (
+                    <div className="mt-3 border-t border-slate-100 pt-2 text-xs text-slate-500">
+                      Sources: {execOutput.sources_used.join(", ")}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </Card>
