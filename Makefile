@@ -4,7 +4,7 @@ help:
 	@echo "PromptHub Enterprise targets:"
 	@echo "  install       Install backend (uv) and frontend (npm) dependencies"
 	@echo "  seed          Create the database and load seed data (uses local .env)"
-	@echo "  backend       Run the FastAPI backend on :8000"
+	@echo "  backend       Run the FastAPI backend on :8010"
 	@echo "  frontend      Run the Vite dev server on :5173"
 	@echo "  dev-demo      One command: seed + backend + frontend (three terminals style)"
 	@echo "  test          Run backend pytest suite"
@@ -20,7 +20,7 @@ seed:
 	cd backend && uv run python -c "from app.seed import seed_all; seed_all()"
 
 backend:
-	cd backend && uv run uvicorn app.main:app --reload --port 8000
+	cd backend && uv run uvicorn app.main:app --reload --port 8010
 
 frontend:
 	cd frontend && npm run dev

@@ -38,10 +38,10 @@ Contoso M365 demo dataset.
 ```bash
 cd backend
 uv sync
-uv run uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --reload --port 8010
 ```
 
-- API docs: http://localhost:8000/docs
+- API docs: http://localhost:8010/docs
 - First boot seeds `../prompthub.db` (SQLite) automatically.
 - Default `LLM_PROVIDER=auto`: uses a local Ollama if reachable, otherwise a
   fast deterministic mock. Set `LLM_PROVIDER=mock` to always skip Ollama.
@@ -52,7 +52,7 @@ Terminal 1:
 
 ```bash
 cd backend
-uv run uvicorn app.main:app --port 8000
+uv run uvicorn app.main:app --port 8010
 ```
 
 Terminal 2:
@@ -60,7 +60,7 @@ Terminal 2:
 ```bash
 cd frontend
 npm install
-npm run dev          # http://localhost:5173 (proxies /api to :8000)
+npm run dev          # http://localhost:5173 (proxies /api to :8010)
 ```
 
 ### Docker stack

@@ -40,7 +40,7 @@ engineers who will operate, extend or migrate the platform.
                                          │ HTTP/JSON  (proxied in dev,
                                          │            direct + CORS in prod)
                   ┌──────────────────────▼───────────────────────────┐
-                  │                FASTAPI (:8000)                    │
+                  │                FASTAPI (:8010)                    │
                   │  Catalog │ Prompts │ Assistant │ Executions       │
                   │  Workflows │ Governance │ Analytics │ Audit       │
                   │  Admin │ Knowledge                     /api/v1    │
@@ -564,7 +564,7 @@ or `uv run python -c "from app.seed import seed_all; seed_all()"`.
 
 ```
 frontend/
-  vite.config.ts        dev server, /api + /health proxy → 127.0.0.1:8000
+  vite.config.ts        dev server, /api + /health proxy → 127.0.0.1:8010
   src/
     main.tsx            ReactDOM + QueryClientProvider + BrowserRouter
     App.tsx             route table (Layout + 10 pages)
@@ -664,8 +664,8 @@ possible.
 ### Local dev
 
 ```bash
-cd backend && uv sync && uv run uvicorn app.main:app --reload --port 8000
-cd frontend && npm install && npm run dev        # proxy → :8000
+cd backend && uv sync && uv run uvicorn app.main:app --reload --port 8010
+cd frontend && npm install && npm run dev        # proxy → :8010
 ```
 
 ### Docker compose (production-style)

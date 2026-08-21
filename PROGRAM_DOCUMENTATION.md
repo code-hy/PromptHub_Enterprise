@@ -756,7 +756,7 @@ The `core/enums.py` module exports catalogue lists used by:
 
 ### `frontend/vite.config.ts`
 
-**Purpose:** Vite build config with React plugin and dev proxy (`/api` -> `127.0.0.1:8000`).
+**Purpose:** Vite build config with React plugin and dev proxy (`/api` -> `127.0.0.1:8010`).
 **Env var:** `VITE_PROXY_TARGET` overrides the proxy target.
 
 ### `frontend/tailwind.config.js`
@@ -782,14 +782,14 @@ The `core/enums.py` module exports catalogue lists used by:
 
 **Base:** Python 3.14-slim
 **Build:** `uv sync --frozen`
-**Run:** seeds, then `uvicorn app.main:app --host 0.0.0.0 --port 8000`
+**Run:** seeds, then `uvicorn app.main:app --host 0.0.0.0 --port 8010`
 
 ### `frontend/Dockerfile`
 
 **Base:** Node 20-alpine
 **Build:** `npm install && npm run build`
 **Serve:** nginx:alpine on port 80
-**Env baked in:** `VITE_API_URL=http://localhost:8000/api/v1`
+**Env baked in:** `VITE_API_URL=http://localhost:8010/api/v1`
 
 ### `backend/tests/conftest.py`
 

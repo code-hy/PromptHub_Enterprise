@@ -101,7 +101,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card title="Recently executed" action={<Link className="text-xs font-medium text-brand-600 hover:underline" to="/workflows">Workflows →</Link>}>
-          {!executions || executions.items.length === 0 ? (
+          {!executions?.items || executions.items.length === 0 ? (
             <p className="py-6 text-sm text-slate-400">No executions yet.</p>
           ) : (
             <ul className="divide-y divide-slate-50">
@@ -124,7 +124,7 @@ export default function Dashboard() {
         </Card>
 
         <Card title="Highest quality prompts" action={<Link className="text-xs font-medium text-brand-600 hover:underline" to="/library">Browse library →</Link>}>
-          {!prompts || prompts.items.length === 0 ? (
+          {!prompts?.items || prompts.items.length === 0 ? (
             <p className="py-6 text-sm text-slate-400">No prompts yet.</p>
           ) : (
             <div className="space-y-2">

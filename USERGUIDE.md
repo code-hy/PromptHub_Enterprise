@@ -76,7 +76,7 @@ and Ollama/OpenAI for a production-style deployment.
 └─────────────────────┬────────────────────────┘
                       │  /api  (dev proxy → backend)
 ┌─────────────────────▼────────────────────────┐
-│  Backend   FastAPI + SQLAlchemy 2.0  (:8000) │
+│  Backend   FastAPI + SQLAlchemy 2.0  (:8010) │
 │                                                  │
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────┐ │
 │  │ quality │ │  rag    │ │  llm    │ │seed   │ │
@@ -116,11 +116,11 @@ Routing:
 ```powershell
 cd backend
 uv sync
-uv run uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --reload --port 8010
 ```
 
-- API docs: <http://localhost:8000/docs>
-- Health: <http://localhost:8000/health>
+- API docs: <http://localhost:8010/docs>
+- Health: <http://localhost:8010/health>
 - First boot auto-creates `../prompthub.db` and seeds the demo dataset.
 
 ### Option B — full stack (backend + frontend)
@@ -129,7 +129,7 @@ Terminal 1 — backend:
 
 ```powershell
 cd backend
-uv run uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --reload --port 8010
 ```
 
 Terminal 2 — frontend:
@@ -141,7 +141,7 @@ npm run dev
 ```
 
 Open **<http://localhost:5173>**. The Vite dev server proxies `/api` to the
-backend on `:8000`, so there's no CORS configuration to mess with.
+backend on `:8010`, so there's no CORS configuration to mess with.
 
 ### Option C — Docker compose (production-style)
 
@@ -151,7 +151,7 @@ docker compose up --build
 
 Starts `postgres` (16), `qdrant`, `ollama`, the backend and the frontend. The
 backend container runs the seed automatically on start. The frontend is served
-at <http://localhost:5173> and talks to the API at <http://localhost:8000/api/v1>.
+at <http://localhost:5173> and talks to the API at <http://localhost:8010/api/v1>.
 
 > **Port in use?** See [Troubleshooting → Port conflicts](#port-conflicts).
 
@@ -477,7 +477,7 @@ history is preserved.
 
 ## 12. API reference
 
-All endpoints are prefixed `/api/v1`. Interactive docs: <http://localhost:8000/docs>.
+All endpoints are prefixed `/api/v1`. Interactive docs: <http://localhost:8010/docs>.
 
 **System**
 
@@ -542,7 +542,7 @@ All endpoints are prefixed `/api/v1`. Interactive docs: <http://localhost:8000/d
 Example — run a prompt:
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/executions \
+curl -X POST http://localhost:8010/api/v1/executions \
   -H "Content-Type: application/json" \
   -d '{"prompt_id": 1, "input_data": {"documents": "Q3 board pack"}, "use_grounding": true}'
 ```
@@ -583,7 +583,7 @@ process from an IDE/agent). Three fixes:
 2. **Free the port** (Windows):
 
    ```powershell
-   $c = Get-NetTCPConnection -LocalPort 8000 -State Listen
+   $c = Get-NetTCPConnection -LocalPort 8010 -State Listen
    Stop-Process -Id $c.OwningProcess -Force
    ```
 
@@ -597,7 +597,7 @@ The seed only runs when the DB is empty. To rebuild the demo dataset cleanly:
 ```powershell
 # stop the backend first
 Remove-Item ..\prompthub.db   # from backend/, or delete prompthub.db from repo root
-uv run uvicorn app.main:app --port 8000
+uv run uvicorn app.main:app --port 8010
 ```
 
 > On Windows, kill any running `uvicorn` first — the SQLite file is locked while
@@ -608,12 +608,12 @@ uv run uvicorn app.main:app --port 8000
 This is expected with Ollama (~60 s/step). For fast demos:
 
 ```powershell
-$env:LLM_PROVIDER="mock"; uv run uvicorn app.main:app --port 8000
+$env:LLM_PROVIDER="mock"; uv run uvicorn app.main:app --port 8010
 ```
 
 ### Frontend loads but API calls fail
 
-- Confirm the backend prints the expected startup and that `http://localhost:8000/health` returns `{"status":"ok",...}`.
+- Confirm the backend prints the expected startup and that `http://localhost:8010/health` returns `{"status":"ok",...}`.
 - If you changed the backend port, restart `npm run dev` with
   `VITE_PROXY_TARGET` pointing at the new port.
 - The app auto-signs in as `henry` (ADMIN) — if you enabled `ENABLE_AUTH=true`,

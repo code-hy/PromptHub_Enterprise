@@ -18,7 +18,7 @@ dataset.
 |--------------|----------|
 | Backend deps | `uv sync` completes in `backend/` |
 | Frontend deps| `npm install` completes in `frontend/` |
-| Port 8000    | free (nothing listening) |
+| Port 8010    | free (nothing listening) |
 | Port 5173    | free (nothing listening) |
 
 ### 1.1 Demo mode: mock LLM (recommended)
@@ -46,7 +46,7 @@ demo.
 
 ```bash
 cd backend
-uv run uvicorn app.main:app --port 8000
+uv run uvicorn app.main:app --port 8010
 ```
 
 **Expected result** (from the boot log):
@@ -56,7 +56,7 @@ INFO:     Application startup complete.
 INFO:     Seed already present, skipping        # or "Seeded 8 users, 68 prompts, 5 policies, 16 documents, 5 workflows"
 ```
 
-Open **http://localhost:8000/docs** → the FastAPI Swagger UI lists the full API
+Open **http://localhost:8010/docs** → the FastAPI Swagger UI lists the full API
 (`/api/v1/...`). `/health` returns `200`.
 
 ### Terminal 2 — frontend
@@ -67,7 +67,7 @@ npm run dev
 ```
 
 **Expected result:** Vite prints `Local: http://localhost:5173/` and proxies
-`/api` to `127.0.0.1:8000`.
+`/api` to `127.0.0.1:8010`.
 
 Open **http://localhost:5173** → the app auto-signs in as **henry (ADMIN)**
 (`ENABLE_AUTH=false`). The sidebar shows **Dashboard, Library, Builder,
@@ -156,11 +156,11 @@ Expectations), the template with `{{placeholders}}`, version history (v1.0
 (submit for review → approve → publish). Equivalent API script:
 
 ```bash
-curl -s -X POST http://localhost:8000/api/v1/prompts/PROMPT-000069/flow \
+curl -s -X POST http://localhost:8010/api/v1/prompts/PROMPT-000069/flow \
   -H "Content-Type: application/json" -d '{"action":"submit_for_review","note":"Ready for review"}'
-curl -s -X POST http://localhost:8000/api/v1/prompts/PROMPT-000069/flow \
+curl -s -X POST http://localhost:8010/api/v1/prompts/PROMPT-000069/flow \
   -H "Content-Type: application/json" -d '{"action":"approve","note":"Approved by demo"}'
-curl -s -X POST http://localhost:8000/api/v1/prompts/PROMPT-000069/flow \
+curl -s -X POST http://localhost:8010/api/v1/prompts/PROMPT-000069/flow \
   -H "Content-Type: application/json" -d '{"action":"publish","note":"Publishing"}'
 ```
 
@@ -321,7 +321,7 @@ Zero: `emails` (paste the email backlog) and `recipient` (who should receive
 follow-ups).
 
 ```bash
-curl -s -X POST http://localhost:8000/api/v1/workflows/WORKFLOW-000003/run \
+curl -s -X POST http://localhost:8010/api/v1/workflows/WORKFLOW-000003/run \
   -H "Content-Type: application/json" \
   -d '{"input_data":{"emails":"Two customer emails: one asks for a refund, one asks for an invoice update.","recipient":"finance-team"}}'
 ```
@@ -458,7 +458,7 @@ To restore the exact seed numbers at any time:
 ```bash
 cd backend
 Remove-Item ..\prompthub.db     # PowerShell; or delete prompthub.db at repo root
-uv run uvicorn app.main:app --port 8000   # first boot reseeds everything
+uv run uvicorn app.main:app --port 8010   # first boot reseeds everything
 ```
 
 The seed is deterministic: same 8 users, 68 prompts, 5 workflows, 5 policies,

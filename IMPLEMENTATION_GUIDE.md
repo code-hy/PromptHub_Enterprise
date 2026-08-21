@@ -59,7 +59,7 @@ Enterprise_Prompts/
 │   │   ├── components/     # Layout + shared UI primitives
 │   │   ├── pages/          # 10 feature pages
 │   │   └── lib/format.ts
-│   ├── vite.config.ts      # dev proxy → 127.0.0.1:8000
+│   ├── vite.config.ts      # dev proxy → 127.0.0.1:8010
 │   ├── tailwind.config.js / postcss.config.cjs
 │   └── Dockerfile
 ├── docker-compose.yml      # postgres + qdrant + ollama + backend + frontend
@@ -114,7 +114,7 @@ The demo runs with zero external services, so you can skip `.env` entirely.
 
 ```powershell
 cd backend
-uv run uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --reload --port 8010
 ```
 
 What happens on boot (`main.py` lifespan):
@@ -124,14 +124,14 @@ init_db()            → create_all()
 seed_all()           → shows "Seed already present, skipping" if DB exists
 ```
 
-Sanity: <http://localhost:8000/docs> (OpenAPI), <http://localhost:8000/health>.
+Sanity: <http://localhost:8010/docs> (OpenAPI), <http://localhost:8010/health>.
 
 ### Frontend
 
 ```powershell
 cd frontend
 npm run dev
-# → http://localhost:5173, proxies /api + /health to 127.0.0.1:8000
+# → http://localhost:5173, proxies /api + /health to 127.0.0.1:8010
 ```
 
 ### Everything via Docker
@@ -140,7 +140,7 @@ npm run dev
 docker compose up --build
 ```
 
-Use the app at <http://localhost:5173>; API at <http://localhost:8000/api/v1>.
+Use the app at <http://localhost:5173>; API at <http://localhost:8010/api/v1>.
 
 ---
 
@@ -197,7 +197,7 @@ go through `get_provider()`.
 Runtime (API — GOVERNANCE/ADMIN role):
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/governance/policies \
+curl -X POST http://localhost:8010/api/v1/governance/policies \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Financial data must be reviewed",
@@ -358,12 +358,12 @@ backend origin; the backend `CORS_ORIGINS` must include that origin.
 
 | Symptom | Cause / fix |
 |---------|-------------|
-| `[Errno 10048]` on boot | Port 8000 already in use — `Stop-Process` the owner or use `--port 8005` + `VITE_PROXY_TARGET` |
+| `[Errno 10048]` on boot | Port 8010 already in use — `Stop-Process` the owner or use `--port 8005` + `VITE_PROXY_TARGET` |
 | "Seed already present, skipping" but data missing | DB half-seeded or schema changed — delete `prompthub.db` and restart |
 | SQLite file locked on `Remove-Item` | A uvicorn process still holds it — kill it before deleting |
 | Prompts created at runtime collide with seeded IDs | Counter not advanced — run seed once; seed advances the counter past 68 |
 | Workflow never finishes | Real Ollama ~60 s/step — set `LLM_PROVIDER=mock` for demos |
-| Frontend API calls 404 in Docker | Wrong `VITE_API_URL` baked at build (`http://host:8000/api/v1`, not `/api`) |
+| Frontend API calls 404 in Docker | Wrong `VITE_API_URL` baked at build (`http://host:8010/api/v1`, not `/api`) |
 | CORS errors in production | Add your frontend origin to `CORS_ORIGINS` |
 | 403 on admin/governance routes | Role missing — demo user `henry` is ADMIN; policy create needs GOVERNANCE or ADMIN |
 | Quality score looks static | Intended — deterministic rubric (§8 TECH_GUIDE). It never changes for identical input |

@@ -108,7 +108,7 @@ Each of these steps is explained in detail in the sections below.
 ┌──────────────────────────┼──────────────────────────────────────┐
 │                          ▼                                      │
 │   ┌──────────────────────────────────────────────────────────┐   │
-│   │  FastAPI Backend  (http://localhost:8000)                │   │
+│   │  FastAPI Backend  (http://localhost:8010)                │   │
 │   │                                                          │   │
 │   │  ┌────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐  │   │
 │   │  │Prompts │ │Workflows │ │Governance│ │  Executions  │  │   │
@@ -216,10 +216,10 @@ gives you ingredients instantly. For the actual service (build), it pre-chops
 and organises everything so the kitchen runs fast.
 
 **Key Vite feature — the proxy:** During development, the frontend runs on
-port 5173 and the backend on port 8000. Browsers block requests to different
+port 5173 and the backend on port 8010. Browsers block requests to different
 ports (a security feature called CORS). Vite solves this by acting as a
 middleman: the browser asks Vite on port 5173 for `/api/v1/prompts`, and Vite
-forwards the request to the backend on port 8000. The browser never knows the
+forwards the request to the backend on port 8010. The browser never knows the
 difference.
 
 ### 4.4 Tailwind CSS (styling)

@@ -387,7 +387,7 @@ If Ollama isn't installed, the system falls back to `MockProvider` automatically
 ```typescript
 proxy: {
   '/api': {
-    target: 'http://127.0.0.1:8000',  // Use 127.0.0.1, NOT localhost
+    target: 'http://127.0.0.1:8010',  // Use 127.0.0.1, NOT localhost
     changeOrigin: true,
   },
 },
@@ -396,9 +396,38 @@ proxy: {
 **Important:** Use `127.0.0.1` not `localhost`. On some Windows systems, `localhost` resolves to IPv6 `::1` while FastAPI binds to IPv4 `127.0.0.1`.
 
 Also verify:
-1. Backend is running: `curl http://127.0.0.1:8000/api/v1/health`
+1. Backend is running: `curl http://127.0.0.1:8010/api/v1/health`
 2. Frontend is running: `cd frontend && npm run dev`
 3. Access frontend at `http://127.0.0.1:5173` (not `http://localhost:5173`)
+
+---
+
+### Another app is squatting port 8000 (wrong data / "Cannot read properties of undefined")
+
+**Symptom:** Dashboard (or any page) crashes with
+`TypeError: Cannot read properties of undefined (reading 'length')`, and API calls return
+data that clearly doesn't belong to PromptHub (e.g. a bare JSON array with unrelated content).
+
+**Cause:** A different application (Docker container, WSL relay, another dev server) is also
+listening on port 8000 and wins the port race. The Vite proxy forwards `/api` to that app, so
+the frontend receives foreign payloads instead of PromptHub's `{items: [...]}` responses.
+
+**Diagnosis:**
+```powershell
+Get-NetTCPConnection -LocalPort 8000 -State Listen |
+  ForEach-Object { $p = Get-Process -Id $_.OwningProcess; "$($_.OwningProcess) $($p.ProcessName)" }
+docker ps --format "{{.Names}}  {{.Ports}}"   # look for 0.0.0.0:8000->...
+```
+
+**Fix:** PromptHub's dev API now defaults to **port 8010** (`vite.config.ts` proxy target,
+docs, Makefile, docker-compose host mapping). Start the backend with:
+```bash
+cd backend && uv run uvicorn app.main:app --reload --port 8010
+```
+If you ever move it again, set `VITE_PROXY_TARGET=http://127.0.0.1:<port>` before `npm run dev`.
+
+**Hardening:** list rendering in the frontend now uses optional chaining (`prompts?.items`),
+so a malformed proxied response renders an empty state instead of crashing the page.
 
 ---
 
