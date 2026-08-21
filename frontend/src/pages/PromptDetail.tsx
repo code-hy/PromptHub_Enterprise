@@ -24,6 +24,7 @@ export default function PromptDetailPage() {
   const [error, setError] = useState("");
   const [gov, setGov] = useState<GovernanceEvaluationOut | null>(null);
   const [provider, setProvider] = useState("auto");
+  const [model, setModel] = useState("");
 
   const { data: prompt, isLoading, isError } = useQuery({
     queryKey: ["prompt", id],
@@ -32,6 +33,33 @@ export default function PromptDetailPage() {
   });
   const { data: catalog } = useQuery({ queryKey: ["catalog"], queryFn: catalogApi.get });
   const providerOptions = catalog?.providers ?? [];
+  const allModels = catalog?.models ?? [];
+  // Prefer local Ollama models; hide remote/cloud placeholders and tiny size entries for the dropdown.
+  const modelOptions = useMemo(() => {
+    const filtered = allModels.filter((m) => {
+      const prov = String(m.provider ?? "").toLowerCase();
+      const name = String(m.name ?? "");
+      const isRemote = name.endsWith(":cloud") || prov.endsWith(":cloud");
+      if (isRemote) return false;
+      const size = Number(m.size ?? 0);
+      if (size > 0 && size < 1_000_000) return false;
+      if (provider !== "auto" && provider !== "" && prov && prov !== provider) return false;
+      return prov === "ollama" || allModels.length < 8; // when only a few models, show all
+    });
+    // Most recent first is already the discovery order; move gemma4:e2b to top if present.
+    const gemmaIdx = filtered.findIndex((m) => String(m.name) === "gemma4:e2b");
+    if (gemmaIdx > 0) {
+      const [gemma] = filtered.splice(gemmaIdx, 1);
+      filtered.unshift(gemma);
+    }
+    return filtered.slice(0, 30);
+  }, [allModels, provider]);
+  const autoModelLabel = useMemo(() => {
+    const hit = allModels.find((m) => String(m.name) === "gemma4:e2b");
+    if (hit) return "gemma4:e2b";
+    const first = modelOptions[0];
+    return first ? String(first.name) : "auto-detected";
+  }, [allModels, modelOptions]);
   const { data: versions } = useQuery({
     queryKey: ["versions", id],
     queryFn: () => promptsApi.versions(id!),
@@ -93,6 +121,7 @@ export default function PromptDetailPage() {
         input_data: inputs,
         use_grounding: useGrounding,
         model_provider: provider === "auto" ? null : provider,
+        model_name: model || null,
       });
       setExecOutput(result);
     } catch (e) {
@@ -246,7 +275,10 @@ export default function PromptDetailPage() {
                 </span>
                 <select
                   value={provider}
-                  onChange={(e) => setProvider(e.target.value)}
+                  onChange={(e) => {
+                    setProvider(e.target.value);
+                    setModel("");
+                  }}
                   className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none"
                 >
                   <option value="auto">auto (Ollama if reachable, else mock)</option>
@@ -258,6 +290,31 @@ export default function PromptDetailPage() {
                 </select>
               </label>
             </div>
+            {(provider === "ollama" || provider === "auto") && modelOptions.length > 0 && (
+              <div className="mb-3">
+                <label className="block text-sm">
+                  <span className="mb-0.5 flex items-center justify-between">
+                    <span className="font-medium text-slate-700">Model</span>
+                    <span className="text-[10px] uppercase text-slate-400">Ollama</span>
+                  </span>
+                  <select
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none"
+                  >
+                    <option value="">Auto ({autoModelLabel})</option>
+                    {modelOptions.map((m) => (
+                      <option key={String(m.name)} value={String(m.name)}>
+                        {String(m.name)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  Leave on Auto to use <span className="font-medium">{autoModelLabel}</span> (your local Ollama default). Override to pin a specific model.
+                </p>
+              </div>
+            )}
             <div className="flex gap-2">
               <Button disabled={busy} onClick={() => runExecution(false)}>
                 Run

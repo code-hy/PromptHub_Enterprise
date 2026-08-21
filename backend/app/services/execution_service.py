@@ -50,7 +50,7 @@ def run_prompt(
     req: ExecutionRequest,
 ) -> PromptExecution:
 
-    provider = get_provider(req.model_provider)
+    provider = get_provider(req.model_provider, req.model_name)
     input_data = req.input_data or {}
     grounding_ctx = GroundingContext()
 
