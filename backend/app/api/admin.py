@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..ids import next_user_id
-from ..models import User
+from ..models import Prompt, User
 from ..schemas.api import UserSummary
 from ..security import hash_password, require_role
 
@@ -96,6 +96,27 @@ def update_user(
     db.commit()
     db.refresh(user)
     return _summarize(user)
+
+
+@router.post("/seed", response_model=dict)
+def seed_database(db: Session = Depends(get_db)):
+    """Trigger demo seed on-demand (used on Render free-tier where lifespan seed may race DB).
+
+    No auth required when DB is empty; otherwise requires valid auth (any user).
+    Safe to call repeatedly — seed_all() is idempotent and now handles partial seeds.
+    """
+    from ..seed import seed_all
+
+    prompt_count = db.scalar(select(func.count()).select_from(Prompt)) or 0
+    if prompt_count >= 10:
+        return {"status": "already_seeded", "prompt_count": prompt_count}
+    try:
+        seed_all()
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=f"Seed failed: {exc}") from exc
+    prompt_count = db.scalar(select(func.count()).select_from(Prompt)) or 0
+    user_count = db.scalar(select(func.count()).select_from(User)) or 0
+    return {"status": "seeded", "prompt_count": prompt_count, "user_count": user_count}
 
 
 @router.delete("/users/{user_id}", response_model=dict)

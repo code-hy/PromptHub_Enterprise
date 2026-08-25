@@ -1241,6 +1241,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/seed:
+    post:
+      tags:
+      - admin
+      summary: Seed Database
+      description: "Trigger demo seed on-demand (used on Render free-tier where lifespan\
+        \ seed may race DB).\n\nNo auth required when DB is empty; otherwise requires\
+        \ valid auth (any user).\nSafe to call repeatedly \u2014 seed_all() is idempotent\
+        \ and now handles partial seeds."
+      operationId: seed_database_api_v1_admin_seed_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Seed Database Api V1 Admin Seed Post
   /api/v1/knowledge/documents:
     get:
       tags:

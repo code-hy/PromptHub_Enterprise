@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..database import SessionLocal, init_db
@@ -69,9 +69,24 @@ STATUS_WHEEL = [
 def seed_all() -> None:
     init_db()
     with SessionLocal() as db:
-        if db.scalar(select(User).where(User.username == "henry")):
-            logger.info("Seed already present, skipping")
+        has_henry = db.scalar(select(User).where(User.username == "henry"))
+        prompt_count = db.scalar(select(func.count()).select_from(Prompt)) or 0
+        if has_henry and prompt_count >= 10:
+            logger.info("Seed already present (%d prompts), skipping", prompt_count)
             return
+        if has_henry and prompt_count == 0:
+            logger.warning("Seed incomplete (henry exists but 0 prompts) — re-seeding")
+            # clean partial state so IDs don't collide
+            db.query(WorkflowStep).delete()
+            db.query(Workflow).delete()
+            db.query(KnowledgeSource).delete()
+            db.query(DocumentChunk).delete()
+            db.query(Document).delete()
+            db.query(GovernancePolicy).delete()
+            db.query(PromptInput).delete()
+            db.query(PromptVersion).delete()
+            db.query(Prompt).delete()
+            db.commit()
         _seed_users(db)
         prompts = _seed_prompts(db)
         _seed_policies(db)
