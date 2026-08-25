@@ -12,4 +12,5 @@ RUN uv sync --frozen 2>/dev/null || uv sync
 
 EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Render free-tier sets $PORT=10000; local dev uses 8010. Use $PORT if present.
+CMD ["sh", "-c", "uv run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

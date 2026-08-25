@@ -1,14 +1,21 @@
-# Render Blueprint — PromptHub Enterprise
+# Render Blueprint — PromptHub Enterprise (Free-tier)
 # Docs: https://render.com/docs/blueprint-spec
-# Deploys: Postgres + Backend (FastAPI :10000) + Frontend (Vite preview).
-# Local dev still uses :8010 (see README.md:34); Render uses $PORT internally.
+# Free-tier notes:
+#   - Web Services on Free sleep after 15 min inactivity (cold start ~30-50s),
+#     750 hrs/month, 512 MB RAM. First request after sleep will be slow — expected.
+#   - Free PostgreSQL expires after ~90 days and is limited to 1 GB.
+#     For a permanent free DB, use Neon/Supabase free and set DATABASE_URL manually
+#     (see ops/render.md "Free-tier DB options").
+#   - Dockerfiles now respect $PORT (Render sets 10000); local dev still uses :8010.
+#   - For cheapest free deploys, use Backend as Web Service (free) + Frontend as
+#     Static Site (free, 100 GB/mo) instead of second Docker service — see below.
 
 services:
   - type: web
     name: prompthub-api
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
-    plan: starter
+    plan: free
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
@@ -24,22 +31,28 @@ services:
       - key: ENABLE_AUTH
         value: false
 
+  # Option A: Frontend as Docker Web Service (sleepy but simple, same repo).
+  # For free-tier we recommend Option B (Static Site) below — cheaper and faster.
+  # Keep this entry if you want Blueprint to create both services; or delete it
+  # and create a Static Site manually (see ops/render.md).
   - type: web
     name: prompthub-web
     runtime: docker
     dockerfilePath: ./frontend/Dockerfile
-    plan: starter
+    plan: free
     envVars:
       - key: VITE_API_URL
         fromService:
           name: prompthub-api
           type: web
           property: host
-        # Render injects https://<host>; frontend Dockerfile bakes VITE_API_URL at build time.
-        # For host-based routing, the Docker build will use https://prompthub-api.onrender.com/api/v1
+        # Render injects https://<host>; frontend build bakes VITE_API_URL.
+        # After Blueprint deploy, re-trigger Frontend deploy so it bakes the real API host,
+        # or set VITE_API_URL manually to https://prompthub-api.onrender.com/api/v1
 
 databases:
   - name: prompthub-db
-    plan: starter
+    plan: free
     databaseName: prompthub
     user: prompthub
+    # Free DB expires — see ops/render.md for Neon/Supabase alternative
