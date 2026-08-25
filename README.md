@@ -30,10 +30,25 @@ Contoso M365 demo dataset.
   stack, how each component fits the scheme of things, and data-flow walkthroughs.
 - **[IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)** — developer guide: how to
   build, run, test, extend and production-harden the platform.
+- **[Cloud_Deployment.md](Cloud_Deployment.md)** — deploy to Render free-tier:
+  step-by-step guide with architecture, CORS, VITE_API_URL, and troubleshooting.
 
 ## Quick start
 
-### Backend only (zero external services)
+### Live demo (Render free-tier)
+
+| Service | URL | Notes |
+|---------|-----|-------|
+| **Frontend** | https://prompthub-web.onrender.com | React SPA, auto-seeded |
+| **Backend API** | https://prompthub-api-56ez.onrender.com | FastAPI + PostgreSQL |
+| API docs | https://prompthub-api-56ez.onrender.com/docs | Swagger UI |
+| Health check | https://prompthub-api-56ez.onrender.com/health | `{"status":"ok"}` |
+
+> Render free-tier: cold start ~30-50 s after 15 min idle. Not a bug.
+
+### Local development
+
+#### Backend only (zero external services)
 
 ```bash
 cd backend
@@ -46,7 +61,7 @@ uv run uvicorn app.main:app --reload --port 8010
 - Default `LLM_PROVIDER=auto`: uses a local Ollama if reachable, otherwise a
   fast deterministic mock. Set `LLM_PROVIDER=mock` to always skip Ollama.
 
-### Full stack (backend + frontend)
+#### Full stack (backend + frontend)
 
 Terminal 1:
 
@@ -63,7 +78,7 @@ npm install
 npm run dev          # http://localhost:5173 (proxies /api to :8010)
 ```
 
-### Docker stack
+#### Docker stack
 
 ```bash
 docker compose up --build   # postgres, qdrant, ollama, backend, frontend
@@ -79,6 +94,19 @@ docker compose up --build   # postgres, qdrant, ollama, backend, frontend
 | `OLLAMA_MODEL`        | `qwen3:1.7b`         |                                   |
 | `ENABLE_AUTH`         | `false`              | demo user `henry` (ADMIN)         |
 | `SEED_DEMO_DATA`      | `true`               |                                   |
+| `CORS_ORIGINS`        | `localhost, prompthub-web.onrender.com` | Comma-separated allowed origins |
+
+### Render free-tier settings
+
+On Render, set these environment variables:
+
+| Variable | Value | Why |
+|----------|-------|-----|
+| `LLM_PROVIDER` | `mock` | No Ollama on free-tier |
+| `SEED_DEMO_DATA` | `true` | Auto-seed 68 prompts on first boot |
+| `ENABLE_AUTH` | `false` | Skip login for demo |
+| `DATABASE_URL` | *(from Render PostgreSQL)* | Render injects via `render.yaml` |
+| `CORS_ORIGINS` | `https://prompthub-web.onrender.com` | Allow cross-origin from frontend |
 
 ## Tests
 

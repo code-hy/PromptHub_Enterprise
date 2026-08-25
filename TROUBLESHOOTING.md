@@ -16,6 +16,7 @@ Known issues, their root causes, and how to fix them.
 8. [Vite Dev Server](#8-vite-dev-server)
 9. [Database](#9-database)
 10. [Docker](#10-docker)
+11. [Render Free-tier](#11-render-free-tier)
 
 ---
 
@@ -526,3 +527,102 @@ Or add a startup script that pulls models automatically.
 | Frontend can't reach backend | Use `127.0.0.1` in Vite proxy, not `localhost` |
 | Ollama slow | Use `LLM_PROVIDER=mock` for demos, or smaller model |
 | Database locked | Delete `prompthub.db` and restart |
+| Render: Dashboard 0/0/0 | Add frontend origin to `CORS_ORIGINS` (see §11) |
+| Render: Library empty | Same as above — CORS blocking API calls |
+| Render: Wrong API host | Check `VITE_API_URL` env var and re-deploy frontend |
+
+---
+
+## 11. Render Free-tier
+
+See also `Cloud_Deployment.md` for the full deployment guide.
+
+### Dashboard shows 0 / 0 / 0 on Render
+
+**Symptom:** Backend API returns 68 prompts (`curl` works), but the Dashboard shows Prompts 0, Executions 0, Minutes saved 0.
+
+**Cause:** CORS blocking. The browser on `prompthub-web.onrender.com` makes cross-origin requests to `prompthub-api-56ez.onrender.com`. If `https://prompthub-web.onrender.com` is not in `CORS_ORIGINS`, the browser silently blocks all API calls.
+
+**Diagnosis:**
+1. Open DevTools (F12) → Network tab → refresh
+2. Find `analytics/overview` → check Status
+3. If status is `(blocked by CORS)` or the request doesn't appear:
+   - Check `CORS_ORIGINS` on the backend service
+
+**Fix:**
+1. Render → `prompthub-api` → Environment → add:
+   ```
+   CORS_ORIGINS=https://prompthub-web.onrender.com
+   ```
+2. Or verify it's in the default list in `backend/app/config.py:48`:
+   ```python
+   cors_origins: str = "http://localhost:5173,...,https://prompthub-web.onrender.com"
+   ```
+3. Redeploy the backend after changing
+
+---
+
+### Library shows "No prompts match your filters" on Render
+
+**Symptom:** Same as above — Library page loads but shows 0 prompts with filter dropdowns visible.
+
+**Cause:** Same CORS issue. The `/prompts` API call is blocked by CORS.
+
+**Fix:** Same as above — add frontend origin to `CORS_ORIGINS`.
+
+---
+
+### Frontend calls localhost or wrong host on Render
+
+**Symptom:** DevTools Network tab shows requests going to `localhost:8010` or `prompthub-api-56ez` (without `.onrender.com`).
+
+**Cause:** `VITE_API_URL` was not baked correctly at build time. The frontend Dockerfile uses `ARG VITE_API_URL` which defaults to `http://localhost:8010/api/v1` if not provided.
+
+**Fix:**
+1. Render → `prompthub-web` → Environment → verify:
+   ```
+   VITE_API_URL=https://prompthub-api-56ez.onrender.com/api/v1
+   ```
+2. If missing or wrong, set it and **Manual Deploy → Clear build cache & deploy**
+3. Also check `render.yaml` has `buildArgs: VITE_API_URL` for the `prompthub-web` service
+
+---
+
+### Cold start takes 30-50 seconds
+
+**Symptom:** First request after idle returns slowly (30-50 s).
+
+**Cause:** Render free-tier Web Services sleep after 15 min inactivity. Waking up takes time.
+
+**Fix:** This is expected behavior. To keep the service awake:
+- Use UptimeRobot or cron to ping `/health` every 10 minutes
+- Or upgrade to a paid plan
+
+---
+
+### PostgreSQL expires after 90 days
+
+**Symptom:** Backend starts returning database errors after ~90 days.
+
+**Cause:** Render free PostgreSQL has a 90-day expiry.
+
+**Fix:**
+1. Set a calendar reminder at day 80
+2. Migrate to Neon free (permanent) or Render paid PG
+3. Or create a new Render PG and update `DATABASE_URL`
+
+---
+
+### Frontend shows correct URL but still 0
+
+**Symptom:** DevTools shows requests going to the correct `prompthub-api-56ez.onrender.com` URL, but responses are empty or error.
+
+**Diagnosis:**
+1. Test the API directly: `curl https://prompthub-api-56ez.onrender.com/api/v1/analytics/overview`
+2. If API returns data but frontend doesn't: check browser console for other errors
+3. If API returns 500: check backend Render logs for seed/DB errors
+
+**Fix:**
+- If backend logs show "Seed already present, skipping": normal, data exists
+- If backend logs show seed errors: check `DATABASE_URL` format (must use `+psycopg` not `+psycopg2`)
+- If backend logs show connection errors: DB may have expired — check Render PG status
