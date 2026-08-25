@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 720
     enable_auth: bool = False
 
-    cors_origins: str = "http://localhost:5173,http://localhost:4173,http://127.0.0.1:5173,http://127.0.0.1:4173"
+    cors_origins: str = "http://localhost:5173,http://localhost:4173,http://127.0.0.1:5173,http://127.0.0.1:4173,https://prompthub-web.onrender.com"
 
     mock_llm_latency_ms: int = 250
     llm_timeout_seconds: int = 300
