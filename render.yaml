@@ -15,6 +15,7 @@ services:
     name: prompthub-api
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     plan: free
     healthCheckPath: /health
     envVars:
@@ -39,6 +40,7 @@ services:
     name: prompthub-web
     runtime: docker
     dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
     plan: free
     envVars:
       - key: VITE_API_URL
