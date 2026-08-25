@@ -5,10 +5,22 @@ let API_BASE = rawBase;
 if (rawBase && !rawBase.startsWith("http") && !rawBase.startsWith("/")) {
   API_BASE = `https://${rawBase}/api/v1`;
 }
-// On Render free-tier the web build was baked with localhost, but the live host is onrender.com.
-// Fallback to the known backend host so the dashboard shows seeded data immediately.
-if (typeof window !== "undefined" && window.location.hostname.endsWith("onrender.com") && API_BASE.includes("localhost")) {
-  API_BASE = "https://prompthub-api-56ez.onrender.com/api/v1";
+// On Render free-tier the web build may have been baked with localhost or a short host
+// (prompthub-api-56ez without .onrender.com). Runtime fallback ensures the dashboard
+// hits the live backend regardless of what was baked.
+if (typeof window !== "undefined" && window.location.hostname.endsWith("onrender.com")) {
+  if (API_BASE.includes("localhost")) {
+    API_BASE = "https://prompthub-api-56ez.onrender.com/api/v1";
+  } else if (API_BASE.includes("prompthub-api-56ez") && !API_BASE.includes("onrender.com")) {
+    API_BASE = API_BASE.replace("prompthub-api-56ez", "prompthub-api-56ez.onrender.com");
+  } else if (API_BASE === "https://prompthub-api-56ez/api/v1") {
+    API_BASE = "https://prompthub-api-56ez.onrender.com/api/v1";
+  }
+  // If still just "/api/v1" (relative), keep it — preview proxy will handle it, but on
+  // Render the preview server has no proxy, so force absolute to the API host.
+  if (API_BASE === "/api/v1") {
+    API_BASE = "https://prompthub-api-56ez.onrender.com/api/v1";
+  }
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
