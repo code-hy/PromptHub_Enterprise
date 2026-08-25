@@ -42,15 +42,13 @@ services:
     dockerfilePath: ./frontend/Dockerfile
     dockerContext: ./frontend
     plan: free
+    # Bake the live backend host at build time so the preview doesn't call localhost
+    buildArgs:
+      - key: VITE_API_URL
+        value: https://prompthub-api-56ez.onrender.com/api/v1
     envVars:
       - key: VITE_API_URL
-        fromService:
-          name: prompthub-api
-          type: web
-          property: host
-        # Render injects https://<host>; frontend build bakes VITE_API_URL.
-        # After Blueprint deploy, re-trigger Frontend deploy so it bakes the real API host,
-        # or set VITE_API_URL manually to https://prompthub-api.onrender.com/api/v1
+        value: https://prompthub-api-56ez.onrender.com/api/v1
 
 databases:
   - name: prompthub-db
