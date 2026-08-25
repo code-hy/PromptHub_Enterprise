@@ -57,7 +57,18 @@ class Settings(BaseSettings):
     @property
     def sqlalchemy_url(self) -> str:
         if self.database_url:
-            return self.database_url
+            url = self.database_url.strip()
+            # Render and many PaaS still emit `postgres://` or `postgresql://`
+            # which SQLAlchemy maps to psycopg2, but this project depends on
+            # `psycopg[binary]` (psycopg 3, dialect `postgresql+psycopg`).
+            # Normalize so both schemes work on Render free-tier.
+            if url.startswith("postgres://"):
+                url = url.replace("postgres://", "postgresql+psycopg://", 1)
+            elif url.startswith("postgresql://"):
+                url = url.replace("postgresql://", "postgresql+psycopg://", 1)
+            elif url.startswith("postgresql+psycopg2://"):
+                url = url.replace("postgresql+psycopg2://", "postgresql+psycopg://", 1)
+            return url
         return f"sqlite:///{BASE_DIR / 'prompthub.db'}"
 
     @property
