@@ -17,4 +17,9 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    host: true,
+    port: 5173,
+    allowedHosts: true, // Render free-tier host prompthub-web.onrender.com
+  },
 });
