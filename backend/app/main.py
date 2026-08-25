@@ -16,15 +16,42 @@ logger = logging.getLogger("prompthub")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Always log to stdout so Render logs show it (logger alone may be filtered)
+    print(f"[startup] seed_demo_data={settings.seed_demo_data} db={settings.sqlalchemy_url[:60]}...", flush=True)
     init_db()
-    if settings.seed_demo_data:
-        try:
-            from .seed import seed_all
+    # Force seed when DB is empty — handles free-tier first boot and partial-seed recovery
+    # even if SEED_DEMO_DATA was mis-set. Otherwise respect the flag.
+    try:
+        from sqlalchemy import func, select
 
-            seed_all()
-            logger.info("Demo seed complete")
-        except Exception as exc:  # pragma: no cover - seeding should not block
-            logger.exception("Seed failed: %s", exc)
+        from .database import SessionLocal
+        from .models import Prompt
+
+        with SessionLocal() as _db:
+            prompt_count = _db.scalar(select(func.count()).select_from(Prompt)) or 0
+            print(f"[startup] prompt_count={prompt_count}", flush=True)
+            should_seed = prompt_count == 0 or settings.seed_demo_data
+            if should_seed and prompt_count == 0:
+                print("[startup] DB empty — seeding demo data (68 prompts)...", flush=True)
+                from .seed import seed_all
+
+                seed_all()
+                # re-count after seed
+                with SessionLocal() as _db2:
+                    c2 = _db2.scalar(select(func.count()).select_from(Prompt)) or 0
+                    print(f"[startup] seed complete — now {c2} prompts", flush=True)
+                    logger.info("Demo seed complete (%d prompts)", c2)
+            elif settings.seed_demo_data:
+                from .seed import seed_all
+
+                seed_all()
+                print("[startup] seed_demo_data seed complete", flush=True)
+                logger.info("Demo seed complete")
+            else:
+                print("[startup] seed skipped (already has data and flag off)", flush=True)
+    except Exception as exc:  # pragma: no cover - seeding should not block boot
+        print(f"[startup] seed failed: {exc}", flush=True)
+        logger.exception("Seed failed: %s", exc)
     yield
 
 

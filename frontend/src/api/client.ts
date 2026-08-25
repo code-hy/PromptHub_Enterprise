@@ -1,4 +1,13 @@
-const API_BASE = import.meta.env.VITE_API_URL || "/api/v1";
+const rawBase = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";
+// Render blueprint injects just the host (e.g. prompthub-api-56ez.onrender.com) via fromService.
+// Normalize to a full https:// URL so fetch works on the free-tier.
+let API_BASE = rawBase;
+if (rawBase && !rawBase.startsWith("http") && !rawBase.startsWith("/")) {
+  API_BASE = `https://${rawBase}/api/v1`;
+} else if (rawBase && !rawBase.startsWith("http") && rawBase.startsWith("/")) {
+  // already a path like /api/v1 — keep as is for local proxy
+  API_BASE = rawBase;
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
