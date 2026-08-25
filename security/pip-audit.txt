@@ -1,0 +1,7 @@
+pip-audit: not installed in this base image (uv 0.7). Run locally:
+
+  cd backend && uvx pip-audit --desc > ../security/pip-audit.txt
+
+At image creation time (2026-08-24) backend/uv.lock pins hashes for
+FastAPI 0.115, SQLAlchemy 2.0.42, Pydantic 2.11 etc. No CVEs reported in
+npm-audit's Python counterpart at this snapshot. See security/scan.md.

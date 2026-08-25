@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# agent-hooks/pre-commit — guardrail: lint + contract drift (deterministic, no LLM)
+set -euo pipefail
+echo "[pre-commit] ruff check..."
+uv run ruff check backend/app backend/tests --quiet || { echo "ruff failed"; exit 1; }
+echo "[pre-commit] openapi drift check..."
+uv run python -c "from backend.app.main import create_app; import yaml; app=create_app(); yaml.safe_dump(app.openapi(), open('openapi.yaml','w'), sort_keys=False)"
+if ! git diff --quiet openapi.yaml; then
+  echo "openapi.yaml drift — commit the updated file"
+  git diff openapi.yaml | head -n 80
+  exit 1
+fi
+echo "[pre-commit] OK"

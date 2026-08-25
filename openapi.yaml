@@ -1,0 +1,3058 @@
+openapi: 3.1.0
+info:
+  title: PromptHub Enterprise
+  description: Stand-Alone Enterprise AI Prompt Library, Engineering, Testing & Governance
+    Platform
+  version: 1.0.0
+paths:
+  /api/v1/catalog:
+    get:
+      tags:
+      - catalog
+      summary: Catalog
+      operationId: catalog_api_v1_catalog_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogOut'
+  /api/v1/auth/login:
+    post:
+      tags:
+      - auth
+      summary: Login
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/me:
+    get:
+      tags:
+      - auth
+      summary: Me
+      operationId: me_api_v1_auth_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummary'
+      security:
+      - HTTPBearer: []
+  /api/v1/prompts:
+    get:
+      tags:
+      - prompts
+      summary: List Prompts
+      operationId: list_prompts_api_v1_prompts_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ''
+          title: Search
+      - name: business_function
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Function
+      - name: application
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Application
+      - name: task
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: risk_level
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Risk Level
+      - name: classification
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Classification
+      - name: tag
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tag
+      - name: favourite_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Favourite Only
+      - name: is_template
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Template
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          default: updated
+          title: Sort
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 24
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - prompts
+      summary: Create Prompt
+      operationId: create_prompt_api_v1_prompts_post
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/prompts/{prompt_ref}:
+    get:
+      tags:
+      - prompts
+      summary: Get Prompt
+      operationId: get_prompt_api_v1_prompts__prompt_ref__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - prompts
+      summary: Update Prompt
+      operationId: update_prompt_api_v1_prompts__prompt_ref__put
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - prompts
+      summary: Delete Prompt
+      operationId: delete_prompt_api_v1_prompts__prompt_ref__delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/prompts/{prompt_ref}/clone:
+    post:
+      tags:
+      - prompts
+      summary: Clone Prompt
+      operationId: clone_prompt_api_v1_prompts__prompt_ref__clone_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/CloneCreate'
+              - type: 'null'
+              title: Data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/prompts/{prompt_ref}/flow:
+    post:
+      tags:
+      - prompts
+      summary: Prompt Flow
+      operationId: prompt_flow_api_v1_prompts__prompt_ref__flow_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptFlowAction'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/prompts/{prompt_ref}/rate:
+    post:
+      tags:
+      - prompts
+      summary: Rate Prompt
+      operationId: rate_prompt_api_v1_prompts__prompt_ref__rate_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatingCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RatingOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/prompts/{prompt_ref}/favourite:
+    post:
+      tags:
+      - prompts
+      summary: Favourite Prompt
+      operationId: favourite_prompt_api_v1_prompts__prompt_ref__favourite_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/prompts/{prompt_ref}/governance:
+    get:
+      tags:
+      - prompts
+      summary: Prompt Governance
+      operationId: prompt_governance_api_v1_prompts__prompt_ref__governance_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/prompts/{prompt_ref}/versions:
+    get:
+      tags:
+      - prompts
+      summary: List Versions
+      operationId: list_versions_api_v1_prompts__prompt_ref__versions_get
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VersionOut'
+                title: Response List Versions Api V1 Prompts  Prompt Ref  Versions
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/prompts/{prompt_ref}/versions/{version_ref}:
+    get:
+      tags:
+      - prompts
+      summary: Get Version
+      operationId: get_version_api_v1_prompts__prompt_ref__versions__version_ref__get
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      - name: version_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Version Ref
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/prompts/{prompt_ref}/compare:
+    get:
+      tags:
+      - prompts
+      summary: Compare Versions
+      operationId: compare_versions_api_v1_prompts__prompt_ref__compare_get
+      parameters:
+      - name: prompt_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Ref
+      - name: from_version
+        in: query
+        required: true
+        schema:
+          type: string
+          title: From Version
+      - name: to_version
+        in: query
+        required: true
+        schema:
+          type: string
+          title: To Version
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionCompare'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/assistant/analyse:
+    post:
+      tags:
+      - assistant
+      summary: Analyse
+      operationId: analyse_api_v1_assistant_analyse_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistantRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistantResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/assistant/improve:
+    post:
+      tags:
+      - assistant
+      summary: Improve
+      operationId: improve_api_v1_assistant_improve_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistantRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistantResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/assistant/generate:
+    post:
+      tags:
+      - assistant
+      summary: Generate
+      operationId: generate_api_v1_assistant_generate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistantRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistantResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/assistant/explain:
+    post:
+      tags:
+      - assistant
+      summary: Explain
+      operationId: explain_api_v1_assistant_explain_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistantRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistantResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/executions:
+    post:
+      tags:
+      - executions
+      summary: Create Execution
+      operationId: create_execution_api_v1_executions_post
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecutionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - executions
+      summary: List Executions
+      operationId: list_executions_api_v1_executions_get
+      parameters:
+      - name: prompt_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Prompt Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Executions Api V1 Executions Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/executions/{execution_id}:
+    get:
+      tags:
+      - executions
+      summary: Get Execution
+      operationId: get_execution_api_v1_executions__execution_id__get
+      parameters:
+      - name: execution_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Execution Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workflows:
+    get:
+      tags:
+      - workflows
+      summary: List Workflows
+      operationId: list_workflows_api_v1_workflows_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowListResponse'
+    post:
+      tags:
+      - workflows
+      summary: Create Workflow
+      operationId: create_workflow_api_v1_workflows_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/workflows/{workflow_ref}:
+    get:
+      tags:
+      - workflows
+      summary: Get Workflow
+      operationId: get_workflow_api_v1_workflows__workflow_ref__get
+      parameters:
+      - name: workflow_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Ref
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workflows/{workflow_ref}/run:
+    post:
+      tags:
+      - workflows
+      summary: Run Workflow
+      operationId: run_workflow_api_v1_workflows__workflow_ref__run_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: workflow_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Ref
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRunRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowExecutionOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workflows/{workflow_ref}/executions:
+    get:
+      tags:
+      - workflows
+      summary: List Workflow Executions
+      operationId: list_workflow_executions_api_v1_workflows__workflow_ref__executions_get
+      parameters:
+      - name: workflow_ref
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Ref
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/governance/policies:
+    get:
+      tags:
+      - governance
+      summary: List Policies
+      operationId: list_policies_api_v1_governance_policies_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PolicyOut'
+                type: array
+                title: Response List Policies Api V1 Governance Policies Get
+    post:
+      tags:
+      - governance
+      summary: Create Policy
+      operationId: create_policy_api_v1_governance_policies_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/governance/evaluate:
+    post:
+      tags:
+      - governance
+      summary: Evaluate
+      operationId: evaluate_api_v1_governance_evaluate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GovernanceEvaluationIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovernanceEvaluationOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/governance/violations:
+    get:
+      tags:
+      - governance
+      summary: List Violations
+      operationId: list_violations_api_v1_governance_violations_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/governance/summary:
+    get:
+      tags:
+      - governance
+      summary: Summary
+      operationId: summary_api_v1_governance_summary_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/governance/scan:
+    post:
+      tags:
+      - governance
+      summary: Scan Prompt
+      operationId: scan_prompt_api_v1_governance_scan_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: text
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Text
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/analytics/overview:
+    get:
+      tags:
+      - analytics
+      summary: Overview
+      operationId: overview_api_v1_analytics_overview_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsOverview'
+  /api/v1/analytics/productivity:
+    get:
+      tags:
+      - analytics
+      summary: Productivity
+      operationId: productivity_api_v1_analytics_productivity_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/audit:
+    get:
+      tags:
+      - audit
+      summary: List Audit
+      operationId: list_audit_api_v1_audit_get
+      parameters:
+      - name: event_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Event Type
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+      - name: entity_ref
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Ref
+      - name: actor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/audit/recent:
+    get:
+      tags:
+      - audit
+      summary: Recent
+      operationId: recent_api_v1_audit_recent_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 25
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/users:
+    get:
+      tags:
+      - admin
+      summary: List Users
+      operationId: list_users_api_v1_admin_users_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserSummary'
+                type: array
+                title: Response List Users Api V1 Admin Users Get
+      security:
+      - HTTPBearer: []
+    post:
+      tags:
+      - admin
+      summary: Create User
+      operationId: create_user_api_v1_admin_users_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummary'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/admin/users/{user_id}:
+    put:
+      tags:
+      - admin
+      summary: Update User
+      operationId: update_user_api_v1_admin_users__user_id__put
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummary'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - admin
+      summary: Delete User
+      operationId: delete_user_api_v1_admin_users__user_id__delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Delete User Api V1 Admin Users  User Id  Delete
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/knowledge/documents:
+    get:
+      tags:
+      - knowledge
+      summary: List Documents
+      operationId: list_documents_api_v1_knowledge_documents_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/knowledge/documents/{document_id}:
+    get:
+      tags:
+      - knowledge
+      summary: Get Document
+      operationId: get_document_api_v1_knowledge_documents__document_id__get
+      parameters:
+      - name: document_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Document Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/knowledge/search:
+    post:
+      tags:
+      - knowledge
+      summary: Search Documents
+      operationId: search_documents_api_v1_knowledge_search_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              type: object
+              title: Body
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      tags:
+      - system
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AnalyticsOverview:
+      properties:
+        prompt_count:
+          type: integer
+          title: Prompt Count
+          default: 0
+        published_count:
+          type: integer
+          title: Published Count
+          default: 0
+        execution_count:
+          type: integer
+          title: Execution Count
+          default: 0
+        success_rate:
+          type: number
+          title: Success Rate
+          default: 0.0
+        avg_rating:
+          type: number
+          title: Avg Rating
+          default: 0.0
+        rating_count:
+          type: integer
+          title: Rating Count
+          default: 0
+        estimated_time_saved_minutes:
+          type: number
+          title: Estimated Time Saved Minutes
+          default: 0.0
+        avg_latency_ms:
+          type: number
+          title: Avg Latency Ms
+          default: 0.0
+        avg_tokens:
+          type: integer
+          title: Avg Tokens
+          default: 0
+        top_prompts:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Top Prompts
+        execution_by_category:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Execution By Category
+        executions_by_day:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Executions By Day
+        model_usage:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Model Usage
+        status_distribution:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Status Distribution
+      type: object
+      title: AnalyticsOverview
+    AssistantRequest:
+      properties:
+        prompt:
+          type: string
+          title: Prompt
+        mode:
+          type: string
+          title: Mode
+          default: improve
+        business_function:
+          type: string
+          title: Business Function
+          default: ''
+        task:
+          type: string
+          title: Task
+          default: ''
+      type: object
+      required:
+      - prompt
+      title: AssistantRequest
+    AssistantResponse:
+      properties:
+        score:
+          type: integer
+          title: Score
+        rating:
+          type: string
+          title: Rating
+        breakdown:
+          additionalProperties:
+            additionalProperties:
+              type: integer
+            type: object
+          type: object
+          title: Breakdown
+        missing:
+          items:
+            type: string
+          type: array
+          title: Missing
+        present:
+          items:
+            type: string
+          type: array
+          title: Present
+        recommendations:
+          items:
+            type: string
+          type: array
+          title: Recommendations
+        analysis:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Analysis
+        improved_prompt:
+          type: string
+          title: Improved Prompt
+          default: ''
+        generated_prompt:
+          type: string
+          title: Generated Prompt
+          default: ''
+        explanation:
+          type: string
+          title: Explanation
+          default: ''
+      type: object
+      required:
+      - score
+      - rating
+      title: AssistantResponse
+    AuditEventOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        event_type:
+          type: string
+          title: Event Type
+        actor:
+          type: string
+          title: Actor
+          default: ''
+        entity_type:
+          type: string
+          title: Entity Type
+          default: ''
+        entity_ref:
+          type: string
+          title: Entity Ref
+          default: ''
+        entity_name:
+          type: string
+          title: Entity Name
+          default: ''
+        details:
+          additionalProperties: true
+          type: object
+          title: Details
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - event_type
+      title: AuditEventOut
+    AuditListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AuditEventOut'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: AuditListResponse
+    CatalogOut:
+      properties:
+        business_functions:
+          items:
+            type: string
+          type: array
+          title: Business Functions
+        tasks:
+          items:
+            type: string
+          type: array
+          title: Tasks
+        applications:
+          items:
+            type: string
+          type: array
+          title: Applications
+        statuses:
+          items:
+            type: string
+          type: array
+          title: Statuses
+        classifications:
+          items:
+            type: string
+          type: array
+          title: Classifications
+        risk_levels:
+          items:
+            type: string
+          type: array
+          title: Risk Levels
+        input_types:
+          items:
+            type: string
+          type: array
+          title: Input Types
+        audiences:
+          items:
+            type: string
+          type: array
+          title: Audiences
+        tones:
+          items:
+            type: string
+          type: array
+          title: Tones
+        output_formats:
+          items:
+            type: string
+          type: array
+          title: Output Formats
+        event_types:
+          items:
+            type: string
+          type: array
+          title: Event Types
+        roles:
+          items:
+            type: string
+          type: array
+          title: Roles
+        models:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Models
+        providers:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Providers
+      type: object
+      title: CatalogOut
+    CloneCreate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      type: object
+      title: CloneCreate
+    ExecutionOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        execution_id:
+          type: string
+          title: Execution Id
+        prompt_id:
+          type: integer
+          title: Prompt Id
+        version:
+          type: string
+          title: Version
+        provider:
+          type: string
+          title: Provider
+          default: ''
+        model:
+          type: string
+          title: Model
+          default: ''
+        status:
+          type: string
+          title: Status
+        input_data:
+          additionalProperties: true
+          type: object
+          title: Input Data
+        output:
+          type: string
+          title: Output
+          default: ''
+        tokens:
+          type: integer
+          title: Tokens
+          default: 0
+        latency_ms:
+          type: integer
+          title: Latency Ms
+          default: 0
+        sources_used:
+          items:
+            type: string
+          type: array
+          title: Sources Used
+        evidence:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Evidence
+        eval_metrics:
+          additionalProperties: true
+          type: object
+          title: Eval Metrics
+        error_message:
+          type: string
+          title: Error Message
+          default: ''
+        estimated_time_saved_minutes:
+          type: number
+          title: Estimated Time Saved Minutes
+          default: 0.0
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - execution_id
+      - prompt_id
+      - version
+      - status
+      title: ExecutionOut
+    ExecutionRequest:
+      properties:
+        prompt_id:
+          type: integer
+          title: Prompt Id
+        input_data:
+          additionalProperties: true
+          type: object
+          title: Input Data
+        model_provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Provider
+        model_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Name
+        temperature:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature
+        document_ids:
+          items:
+            type: integer
+          type: array
+          title: Document Ids
+        use_grounding:
+          type: boolean
+          title: Use Grounding
+          default: true
+      type: object
+      required:
+      - prompt_id
+      title: ExecutionRequest
+    GovernanceEvaluationIn:
+      properties:
+        data_classification:
+          type: string
+          title: Data Classification
+          default: INTERNAL
+        risk_level:
+          type: string
+          title: Risk Level
+          default: LOW
+        contains_pii:
+          type: boolean
+          title: Contains Pii
+          default: false
+        contains_financial_data:
+          type: boolean
+          title: Contains Financial Data
+          default: false
+        contains_customer_data:
+          type: boolean
+          title: Contains Customer Data
+          default: false
+        external_sharing:
+          type: string
+          title: External Sharing
+          default: PROHIBITED
+        llm_provider:
+          type: string
+          title: Llm Provider
+          default: mock
+      type: object
+      title: GovernanceEvaluationIn
+    GovernanceEvaluationOut:
+      properties:
+        approved:
+          type: boolean
+          title: Approved
+        violations:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Violations
+        decisions:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Decisions
+      type: object
+      required:
+      - approved
+      title: GovernanceEvaluationOut
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LoginRequest:
+      properties:
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          title: Password
+          default: ''
+      type: object
+      required:
+      - username
+      title: LoginRequest
+    LoginResponse:
+      properties:
+        token:
+          type: string
+          title: Token
+        user:
+          $ref: '#/components/schemas/UserSummary'
+      type: object
+      required:
+      - token
+      - user
+      title: LoginResponse
+    PolicyIn:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        condition:
+          additionalProperties: true
+          type: object
+          title: Condition
+        action:
+          additionalProperties: true
+          type: object
+          title: Action
+        severity:
+          type: string
+          title: Severity
+          default: MEDIUM
+        enabled:
+          type: boolean
+          title: Enabled
+          default: true
+      type: object
+      required:
+      - name
+      title: PolicyIn
+    PolicyOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        policy_id:
+          type: string
+          title: Policy Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        condition:
+          additionalProperties: true
+          type: object
+          title: Condition
+        action:
+          additionalProperties: true
+          type: object
+          title: Action
+        severity:
+          type: string
+          title: Severity
+          default: MEDIUM
+        enabled:
+          type: boolean
+          title: Enabled
+          default: true
+      type: object
+      required:
+      - id
+      - policy_id
+      - name
+      title: PolicyOut
+    PromptCreate:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        business_function:
+          type: string
+          title: Business Function
+          default: GENERIC
+        application:
+          type: string
+          title: Application
+          default: GENERIC_AI
+        task:
+          type: string
+          title: Task
+          default: ANALYSE
+        goal:
+          type: string
+          title: Goal
+          default: ''
+        context:
+          type: string
+          title: Context
+          default: ''
+        source:
+          type: string
+          title: Source
+          default: ''
+        expectations:
+          type: string
+          title: Expectations
+          default: ''
+        system_instruction:
+          type: string
+          title: System Instruction
+          default: ''
+        prompt_template:
+          type: string
+          title: Prompt Template
+          default: ''
+        audience:
+          type: string
+          title: Audience
+          default: GENERAL
+        tone:
+          type: string
+          title: Tone
+          default: PROFESSIONAL
+        output_format:
+          type: string
+          title: Output Format
+          default: FREE_TEXT
+        max_length:
+          type: string
+          title: Max Length
+          default: ''
+        data_classification:
+          type: string
+          title: Data Classification
+          default: INTERNAL
+        risk_level:
+          type: string
+          title: Risk Level
+          default: LOW
+        requires_approval:
+          type: boolean
+          title: Requires Approval
+          default: false
+        contains_pii:
+          type: boolean
+          title: Contains Pii
+          default: false
+        contains_financial_data:
+          type: boolean
+          title: Contains Financial Data
+          default: false
+        contains_customer_data:
+          type: boolean
+          title: Contains Customer Data
+          default: false
+        external_sharing:
+          type: string
+          title: External Sharing
+          default: PROHIBITED
+        temperature:
+          type: number
+          title: Temperature
+          default: 0.2
+        require_evidence:
+          type: boolean
+          title: Require Evidence
+          default: false
+        avoid_unsupported_claims:
+          type: boolean
+          title: Avoid Unsupported Claims
+          default: false
+        ask_clarification_questions:
+          type: boolean
+          title: Ask Clarification Questions
+          default: false
+        manual_time_minutes:
+          type: number
+          title: Manual Time Minutes
+          default: 30.0
+        ai_time_minutes:
+          type: number
+          title: Ai Time Minutes
+          default: 5.0
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        inputs:
+          items:
+            $ref: '#/components/schemas/PromptInputIn'
+          type: array
+          title: Inputs
+        knowledge_source_document_ids:
+          items:
+            type: integer
+          type: array
+          title: Knowledge Source Document Ids
+      type: object
+      required:
+      - name
+      title: PromptCreate
+    PromptDetail:
+      properties:
+        id:
+          type: integer
+          title: Id
+        prompt_id:
+          type: string
+          title: Prompt Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        status:
+          type: string
+          title: Status
+        version:
+          type: string
+          title: Version
+        business_function:
+          type: string
+          title: Business Function
+          default: ''
+        application:
+          type: string
+          title: Application
+          default: ''
+        task:
+          type: string
+          title: Task
+          default: ''
+        owner_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Owner Id
+        data_classification:
+          type: string
+          title: Data Classification
+          default: INTERNAL
+        risk_level:
+          type: string
+          title: Risk Level
+          default: LOW
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        rating_avg:
+          type: number
+          title: Rating Avg
+          default: 0.0
+        rating_count:
+          type: integer
+          title: Rating Count
+          default: 0
+        execution_count:
+          type: integer
+          title: Execution Count
+          default: 0
+        is_favourite:
+          type: boolean
+          title: Is Favourite
+          default: false
+        goal:
+          type: string
+          title: Goal
+          default: ''
+        context:
+          type: string
+          title: Context
+          default: ''
+        source:
+          type: string
+          title: Source
+          default: ''
+        expectations:
+          type: string
+          title: Expectations
+          default: ''
+        system_instruction:
+          type: string
+          title: System Instruction
+          default: ''
+        prompt_template:
+          type: string
+          title: Prompt Template
+          default: ''
+        audience:
+          type: string
+          title: Audience
+          default: ''
+        tone:
+          type: string
+          title: Tone
+          default: ''
+        output_format:
+          type: string
+          title: Output Format
+          default: ''
+        max_length:
+          type: string
+          title: Max Length
+          default: ''
+        contains_pii:
+          type: boolean
+          title: Contains Pii
+          default: false
+        contains_financial_data:
+          type: boolean
+          title: Contains Financial Data
+          default: false
+        contains_customer_data:
+          type: boolean
+          title: Contains Customer Data
+          default: false
+        external_sharing:
+          type: string
+          title: External Sharing
+          default: ''
+        requires_approval:
+          type: boolean
+          title: Requires Approval
+          default: false
+        temperature:
+          type: number
+          title: Temperature
+          default: 0.2
+        require_evidence:
+          type: boolean
+          title: Require Evidence
+          default: false
+        avoid_unsupported_claims:
+          type: boolean
+          title: Avoid Unsupported Claims
+          default: false
+        ask_clarification_questions:
+          type: boolean
+          title: Ask Clarification Questions
+          default: false
+        manual_time_minutes:
+          type: number
+          title: Manual Time Minutes
+          default: 30.0
+        ai_time_minutes:
+          type: number
+          title: Ai Time Minutes
+          default: 5.0
+        quality_score:
+          type: integer
+          title: Quality Score
+          default: 0
+        inputs:
+          items:
+            $ref: '#/components/schemas/PromptInputOut'
+          type: array
+          title: Inputs
+        owner_name:
+          type: string
+          title: Owner Name
+          default: ''
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        published_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Published At
+      type: object
+      required:
+      - id
+      - prompt_id
+      - name
+      - status
+      - version
+      title: PromptDetail
+    PromptFlowAction:
+      properties:
+        action:
+          type: string
+          title: Action
+        note:
+          type: string
+          title: Note
+          default: ''
+      type: object
+      required:
+      - action
+      title: PromptFlowAction
+    PromptInputIn:
+      properties:
+        name:
+          type: string
+          title: Name
+        input_type:
+          type: string
+          title: Input Type
+          default: TEXT
+        required:
+          type: boolean
+          title: Required
+          default: true
+        description:
+          type: string
+          title: Description
+          default: ''
+        sample_value:
+          type: string
+          title: Sample Value
+          default: ''
+      type: object
+      required:
+      - name
+      title: PromptInputIn
+    PromptInputOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        name:
+          type: string
+          title: Name
+        input_type:
+          type: string
+          title: Input Type
+        required:
+          type: boolean
+          title: Required
+        description:
+          type: string
+          title: Description
+          default: ''
+        sample_value:
+          type: string
+          title: Sample Value
+          default: ''
+        position:
+          type: integer
+          title: Position
+          default: 0
+      type: object
+      required:
+      - id
+      - name
+      - input_type
+      - required
+      title: PromptInputOut
+    PromptListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PromptSummary'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+          default: 1
+        page_size:
+          type: integer
+          title: Page Size
+          default: 24
+      type: object
+      required:
+      - items
+      - total
+      title: PromptListResponse
+    PromptSummary:
+      properties:
+        id:
+          type: integer
+          title: Id
+        prompt_id:
+          type: string
+          title: Prompt Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        status:
+          type: string
+          title: Status
+        version:
+          type: string
+          title: Version
+        business_function:
+          type: string
+          title: Business Function
+          default: ''
+        application:
+          type: string
+          title: Application
+          default: ''
+        task:
+          type: string
+          title: Task
+          default: ''
+        owner_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Owner Id
+        data_classification:
+          type: string
+          title: Data Classification
+          default: INTERNAL
+        risk_level:
+          type: string
+          title: Risk Level
+          default: LOW
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        rating_avg:
+          type: number
+          title: Rating Avg
+          default: 0.0
+        rating_count:
+          type: integer
+          title: Rating Count
+          default: 0
+        execution_count:
+          type: integer
+          title: Execution Count
+          default: 0
+        is_favourite:
+          type: boolean
+          title: Is Favourite
+          default: false
+      type: object
+      required:
+      - id
+      - prompt_id
+      - name
+      - status
+      - version
+      title: PromptSummary
+    PromptUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        business_function:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Function
+        application:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Application
+        task:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task
+        goal:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Goal
+        context:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Context
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+        expectations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expectations
+        system_instruction:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: System Instruction
+        prompt_template:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prompt Template
+        audience:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Audience
+        tone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tone
+        output_format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Output Format
+        max_length:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Max Length
+        data_classification:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Data Classification
+        risk_level:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Risk Level
+        requires_approval:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Requires Approval
+        contains_pii:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Contains Pii
+        contains_financial_data:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Contains Financial Data
+        contains_customer_data:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Contains Customer Data
+        external_sharing:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: External Sharing
+        temperature:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature
+        require_evidence:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Require Evidence
+        avoid_unsupported_claims:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Avoid Unsupported Claims
+        ask_clarification_questions:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Ask Clarification Questions
+        manual_time_minutes:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Manual Time Minutes
+        ai_time_minutes:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ai Time Minutes
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+        inputs:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/PromptInputIn'
+            type: array
+          - type: 'null'
+          title: Inputs
+        changes:
+          type: string
+          title: Changes
+          default: ''
+      type: object
+      title: PromptUpdate
+    RatingCreate:
+      properties:
+        stars:
+          type: number
+          title: Stars
+          default: 5.0
+        useful:
+          type: string
+          title: Useful
+          default: ''
+        feedback:
+          type: string
+          title: Feedback
+          default: ''
+      type: object
+      title: RatingCreate
+    RatingOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        prompt_id:
+          type: integer
+          title: Prompt Id
+        stars:
+          type: number
+          title: Stars
+        useful:
+          type: string
+          title: Useful
+          default: ''
+        feedback:
+          type: string
+          title: Feedback
+          default: ''
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - prompt_id
+      - stars
+      title: RatingOut
+    UserCreate:
+      properties:
+        username:
+          type: string
+          title: Username
+        display_name:
+          type: string
+          title: Display Name
+        email:
+          type: string
+          title: Email
+          default: ''
+        department:
+          type: string
+          title: Department
+          default: ''
+        title:
+          type: string
+          title: Title
+          default: ''
+        role:
+          type: string
+          title: Role
+          default: USER
+        password:
+          type: string
+          title: Password
+          default: ''
+      type: object
+      required:
+      - username
+      - display_name
+      title: UserCreate
+    UserSummary:
+      properties:
+        id:
+          type: integer
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        username:
+          type: string
+          title: Username
+        display_name:
+          type: string
+          title: Display Name
+        email:
+          type: string
+          title: Email
+          default: ''
+        role:
+          type: string
+          title: Role
+        department:
+          type: string
+          title: Department
+          default: ''
+        title:
+          type: string
+          title: Title
+          default: ''
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - id
+      - user_id
+      - username
+      - display_name
+      - role
+      title: UserSummary
+    UserUpdate:
+      properties:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        department:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Department
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+        password:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Password
+      type: object
+      title: UserUpdate
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VersionCompare:
+      properties:
+        from_version:
+          type: string
+          title: From Version
+        to_version:
+          type: string
+          title: To Version
+        changes:
+          items:
+            type: string
+          type: array
+          title: Changes
+      type: object
+      required:
+      - from_version
+      - to_version
+      title: VersionCompare
+    VersionDetail:
+      properties:
+        id:
+          type: integer
+          title: Id
+        prompt_id:
+          type: integer
+          title: Prompt Id
+        version:
+          type: string
+          title: Version
+        version_number:
+          type: integer
+          title: Version Number
+        author_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Author Id
+        changes:
+          type: string
+          title: Changes
+          default: ''
+        approval_status:
+          type: string
+          title: Approval Status
+          default: ''
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        snapshot:
+          additionalProperties: true
+          type: object
+          title: Snapshot
+      type: object
+      required:
+      - id
+      - prompt_id
+      - version
+      - version_number
+      title: VersionDetail
+    VersionOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        prompt_id:
+          type: integer
+          title: Prompt Id
+        version:
+          type: string
+          title: Version
+        version_number:
+          type: integer
+          title: Version Number
+        author_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Author Id
+        changes:
+          type: string
+          title: Changes
+          default: ''
+        approval_status:
+          type: string
+          title: Approval Status
+          default: ''
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - prompt_id
+      - version
+      - version_number
+      title: VersionOut
+    WorkflowCreate:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        business_function:
+          type: string
+          title: Business Function
+          default: ''
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        steps:
+          items:
+            $ref: '#/components/schemas/WorkflowStepIn'
+          type: array
+          title: Steps
+      type: object
+      required:
+      - name
+      title: WorkflowCreate
+    WorkflowExecutionOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        workflow_id:
+          type: integer
+          title: Workflow Id
+        execution_id:
+          type: string
+          title: Execution Id
+        workflow_name:
+          type: string
+          title: Workflow Name
+          default: ''
+        status:
+          type: string
+          title: Status
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+        step_results:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Step Results
+        final_output:
+          type: string
+          title: Final Output
+          default: ''
+        sources_used:
+          items:
+            type: string
+          type: array
+          title: Sources Used
+        latency_ms:
+          type: integer
+          title: Latency Ms
+          default: 0
+        error_message:
+          type: string
+          title: Error Message
+          default: ''
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+      type: object
+      required:
+      - id
+      - workflow_id
+      - execution_id
+      - status
+      title: WorkflowExecutionOut
+    WorkflowListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/WorkflowOut'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - total
+      title: WorkflowListResponse
+    WorkflowOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        workflow_id:
+          type: string
+          title: Workflow Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        status:
+          type: string
+          title: Status
+        business_function:
+          type: string
+          title: Business Function
+          default: ''
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        owner_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Owner Id
+        steps:
+          items:
+            $ref: '#/components/schemas/WorkflowStepOut'
+          type: array
+          title: Steps
+        estimated_manual_minutes:
+          type: integer
+          title: Estimated Manual Minutes
+          default: 45
+        estimated_ai_minutes:
+          type: integer
+          title: Estimated Ai Minutes
+          default: 5
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - workflow_id
+      - name
+      - status
+      title: WorkflowOut
+    WorkflowRunRequest:
+      properties:
+        input_data:
+          additionalProperties: true
+          type: object
+          title: Input Data
+        document_ids:
+          items:
+            type: integer
+          type: array
+          title: Document Ids
+      type: object
+      title: WorkflowRunRequest
+    WorkflowStepIn:
+      properties:
+        sequence:
+          type: integer
+          title: Sequence
+        name:
+          type: string
+          title: Name
+          default: ''
+        prompt_id:
+          type: integer
+          title: Prompt Id
+        input_mapping:
+          additionalProperties:
+            type: string
+          type: object
+          title: Input Mapping
+        continue_on_failure:
+          type: boolean
+          title: Continue On Failure
+          default: false
+      type: object
+      required:
+      - sequence
+      - prompt_id
+      title: WorkflowStepIn
+    WorkflowStepOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        step_id:
+          type: string
+          title: Step Id
+        sequence:
+          type: integer
+          title: Sequence
+        name:
+          type: string
+          title: Name
+          default: ''
+        prompt_id:
+          type: integer
+          title: Prompt Id
+        prompt_name:
+          type: string
+          title: Prompt Name
+          default: ''
+        input_mapping:
+          additionalProperties:
+            type: string
+          type: object
+          title: Input Mapping
+        continue_on_failure:
+          type: boolean
+          title: Continue On Failure
+          default: false
+      type: object
+      required:
+      - id
+      - step_id
+      - sequence
+      - prompt_id
+      title: WorkflowStepOut
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,9 @@
+trivy fs .: not installed in this environment.
+
+Install and run locally for a full image scan:
+
+  trivy fs --severity HIGH,CRITICAL . > security/trivy.txt
+  trivy image --severity HIGH,CRITICAL prompthub-enterprise-backend > security/trivy-image.txt
+
+At commit b60ff2e no HIGH/CRITICAL known from npm-audit (dev-only) and ruff/pytest green.
+Wire into CI as: `aquasecurity/trivy-action@0.24` in .github/workflows/ci.yml.
