@@ -31,3 +31,8 @@ Thumbs.db
 
 # Data (regenerable via seed script)
 data/generated/
+
+# Rubric / evaluation drafts — local only, do not publish
+DRAFT_evaluation_1.md
+RUBRIC_EVALUATION.md
+
