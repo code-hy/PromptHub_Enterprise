@@ -10,7 +10,7 @@
 - `All checks passed!` (`ruff.txt`). No lint errors.
 
 ### Backend `pytest`
-- 23 tests pass (`pytest.txt`) — 7 unit (rubric) + 16 integration (catalog, prompts, assistant, executions, workflows, governance, analytics, audit).
+- 26 tests pass (`pytest.txt`) — 6 unit (rubric) + 20 integration (catalog, prompts, assistant, executions, workflows, governance, analytics, audit, seed audit).
 
 ### Backend `pip-audit` (Python deps)
 - **2026-10-10 re-run:** `cd backend && uvx pip-audit --desc` → exit 0, `No known vulnerabilities found` (see `pip-audit.txt`). Previously (2026-08-24) `uv.lock` pinned hashes only; now verified clean.

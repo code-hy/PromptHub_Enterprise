@@ -7,7 +7,7 @@ Project Atlas story plus Contoso M365 data for RAG grounding.
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -21,6 +21,7 @@ from ..ids import (
     next_workflow_id,
 )
 from ..models import (
+    AuditEvent,
     Document,
     DocumentChunk,
     GovernancePolicy,
@@ -94,6 +95,7 @@ def seed_all() -> None:
         _seed_knowledge_sources(db, prompts, docs)
         _seed_workflows(db, prompts)
         _seed_analytics_rows(db, prompts)
+        _seed_audit_trail(db)
         db.commit()
         logger.info(
             "Seeded %d users, %d prompts, %d policies, %d documents, %d workflows",
@@ -337,6 +339,146 @@ def _seed_workflows(db: Session, prompts: list[Prompt]) -> None:
                 )
             )
     db.flush()
+
+
+def _seed_audit_trail(db: Session) -> None:
+    """Pre-populate a believable audit trail so the Audit Log demo is alive.
+
+    Mirrors the lifecycle the seed data claims (created → submitted → approved →
+    published → deprecated) using the same ``audit_service.record`` path as
+    runtime code. Idempotent: rows carry ``details.seed=True`` and seeding is
+    skipped if any such marker already exists (runtime rows are preserved).
+    """
+    from ..services.audit_service import record as record_event
+
+    existing = db.scalars(select(AuditEvent.details)).all()
+    if any(isinstance(d, dict) and d.get("seed") for d in existing):
+        logger.info("Seed audit trail already present, skipping")
+        return
+
+    users = db.scalars(select(User)).all()
+    by_id = {u.id: u for u in users}
+    by_username = {u.username: u for u in users}
+    system = None  # actor=None records as "system"
+    reviewer = by_username.get("priya.sharma")
+    admin = by_username.get("henry")
+
+    prompts = db.scalars(select(Prompt).order_by(Prompt.id)).all()
+    docs = db.scalars(select(Document).order_by(Document.id)).all()
+    workflows = db.scalars(select(Workflow).order_by(Workflow.id)).all()
+    policies = db.scalars(select(GovernancePolicy).order_by(GovernancePolicy.id)).all()
+
+    # Collect oldest-first; backdate so the trail reads like real history.
+    plan: list[dict] = []
+    for u in users:
+        plan.append(
+            dict(
+                event_type="USER_CREATED",
+                actor=system,
+                entity_type="USER",
+                entity_ref=u.username,
+                entity_name=u.display_name,
+                details={"seed": True, "role": u.role},
+            )
+        )
+    for d in docs:
+        plan.append(
+            dict(
+                event_type="DOCUMENT_INGESTED",
+                actor=system,
+                entity_type="DOCUMENT",
+                entity_ref=d.doc_id,
+                entity_name=d.name,
+                details={"seed": True, "source_app": d.source_app},
+            )
+        )
+    for p in prompts:
+        owner = by_id.get(p.owner_id)
+        plan.append(
+            dict(
+                event_type="PROMPT_CREATED",
+                actor=owner,
+                entity_type="PROMPT",
+                entity_ref=p.prompt_id,
+                entity_name=p.name,
+                details={"seed": True, "status": "DRAFT"},
+            )
+        )
+        if p.status == "DRAFT":
+            continue
+        plan.append(
+            dict(
+                event_type="PROMPT_SUBMITTED",
+                actor=owner,
+                entity_type="PROMPT",
+                entity_ref=p.prompt_id,
+                entity_name=p.name,
+                details={"seed": True},
+            )
+        )
+        if p.status in ("APPROVED", "PUBLISHED", "DEPRECATED"):
+            plan.append(
+                dict(
+                    event_type="PROMPT_APPROVED",
+                    actor=reviewer or owner,
+                    entity_type="PROMPT",
+                    entity_ref=p.prompt_id,
+                    entity_name=p.name,
+                    details={"seed": True, "version": p.version},
+                )
+            )
+        if p.status in ("PUBLISHED", "DEPRECATED"):
+            plan.append(
+                dict(
+                    event_type="PROMPT_PUBLISHED",
+                    actor=admin or owner,
+                    entity_type="PROMPT",
+                    entity_ref=p.prompt_id,
+                    entity_name=p.name,
+                    details={"seed": True, "version": p.version},
+                )
+            )
+        if p.status == "DEPRECATED":
+            plan.append(
+                dict(
+                    event_type="PROMPT_DEPRECATED",
+                    actor=admin or owner,
+                    entity_type="PROMPT",
+                    entity_ref=p.prompt_id,
+                    entity_name=p.name,
+                    details={"seed": True},
+                )
+            )
+    for wf in workflows:
+        plan.append(
+            dict(
+                event_type="WORKFLOW_CREATED",
+                actor=by_id.get(wf.owner_id),
+                entity_type="WORKFLOW",
+                entity_ref=wf.workflow_id,
+                entity_name=wf.name,
+                details={"seed": True},
+            )
+        )
+    for pol in policies:
+        plan.append(
+            dict(
+                event_type="POLICY_CREATED",
+                actor=admin,
+                entity_type="POLICY",
+                entity_ref=pol.policy_id,
+                entity_name=pol.name,
+                details={"seed": True, "severity": pol.severity},
+            )
+        )
+
+    base = datetime.now(UTC)
+    for idx, kwargs in enumerate(plan):
+        event = record_event(db, **kwargs)
+        # Oldest first → newest last, one minute apart.
+        event.created_at = base - timedelta(minutes=len(plan) - idx)
+    db.flush()
+    logger.info("Seeded audit trail (%d events)", len(plan))
 
 
 def _seed_analytics_rows(db: Session, prompts: list[Prompt]) -> None:

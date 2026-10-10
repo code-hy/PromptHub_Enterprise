@@ -637,7 +637,7 @@ query-keys so invalidation targets the right cache node.
   ignore on the import).
 - Runs `seed_all()` against the temp DB and exposes a FastAPI `TestClient`.
 
-Coverage (23 tests):
+Coverage (26 tests):
 
 | Suite | Focus |
 |-------|-------|

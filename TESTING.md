@@ -7,6 +7,7 @@ backend/tests/
   conftest.py               # shared fixtures (temp DB, mock LLM, TestClient)
   unit/test_quality_engine.py      # deterministic rubric — no DB/HTTP
   integration/test_api.py          # full stack via TestClient (catalog, prompts, assistant, executions, workflows, governance, analytics, audit, knowledge)
+  integration/test_seed_audit.py     # seed audit trail (270 events, lifecycle coverage, idempotency)
 
 frontend/
   src/lib/format.test.ts           # Vitest unit (format helpers)
@@ -18,7 +19,7 @@ frontend/
 ```bash
 cd backend
 uv run ruff check app tests          # lint
-uv run pytest -q                     # all 23 tests
+uv run pytest -q                     # all 26 tests
 uv run pytest tests/unit -q          # unit only (rubric)
 uv run pytest tests/integration -q   # integration only (API + DB)
 ```

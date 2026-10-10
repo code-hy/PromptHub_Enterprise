@@ -112,7 +112,7 @@ On Render, set these environment variables:
 
 ```bash
 cd backend
-uv run pytest tests         # 23 tests: quality rubric + API integration
+uv run pytest tests         # 26 tests: quality rubric + API integration + seed audit
 uv run ruff check app tests
 ```
 

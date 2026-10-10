@@ -12,7 +12,7 @@ cd backend && uv run ruff check app tests
 ```bash
 cd backend && uv run pytest -q
 # .......................  [100%]
-# 23 passed (see ops/pytest.out)
+# 26 passed (see ops/pytest.out)
 # Split: `uv run pytest tests/unit -q` (rubric) + `tests/integration -q` (API)
 ```
 

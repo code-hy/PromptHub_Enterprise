@@ -47,7 +47,7 @@ synthetic M365 documents, analytics history) into `../prompthub.db`.
 ## Tests
 
 ```bash
-uv run pytest tests          # 23 tests: quality rubric + API integration
+uv run pytest tests          # 26 tests: quality rubric + API integration + seed audit
 uv run ruff check app tests
 ```
 

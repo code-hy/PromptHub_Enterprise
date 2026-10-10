@@ -287,7 +287,7 @@ services own verbs, IDs are `next_*_id(db)`, schemas mirror entity field names.
 
 ```powershell
 cd backend
-uv run pytest -q            # 23 tests
+uv run pytest -q            # 26 tests
 uv run ruff check app tests
 uv run ruff format --check .
 ```

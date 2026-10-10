@@ -620,14 +620,14 @@ Cold start (Render free): backend 30–50 s wake; documented `TROUBLESHOOTING.md
 |----|-----------|----------|
 | AC-01 | `GET /health` → `{"status":"ok"}` and `GET /analytics/overview` → `prompt_count=68, published_count=44` | curl / Render health check |
 | AC-02 | Library filters (function/status/risk/app), search, sort, pagination affect `total` and `items` server-side | Library UI + `GET /prompts` |
-| AC-03 | Lifecycle transitions enforced; illegal → 422; every mutation → `audit_events` | `pytest` (23) |
+| AC-03 | Lifecycle transitions enforced; illegal → 422; every mutation → `audit_events` | `pytest` (26) |
 | AC-04 | `POST /assistant/analyse` deterministic: same input → same score ±0 | unit test |
 | AC-05 | `POST /executions` with `use_grounding=true` → `sources_used[]` over 16 docs | PromptDetail panel |
 | AC-06 | `POST /workflows/{id}/run` → `step_results[]` + `final_output` for 5 workflows | Workflows UI |
 | AC-07 | `GET /governance/summary` + `POST /governance/evaluate` + `/scan` → `decisions/violations` (5 policies) | Governance UI |
 | AC-08 | `GET /audit?entity_ref=PROMPT-000001` shows immutable timeline | Audit UI |
 | AC-09 | `openapi.yaml` matches `GET /openapi.json`; `frontend/src/api/*` typed | `ci.yml` drift check |
-| AC-10 | `ruff` clean, `pytest -q` 23 passed, `npm run build` succeeds, `npm test` 7 passed | CI logs |
+| AC-10 | `ruff` clean, `pytest -q` 26 passed, `npm run build` succeeds, `npm test` 7 passed | CI logs |
 | AC-11 | `docker compose up --build` boots seeded system on `:8010`/`:5173` without keys | local smoke |
 | AC-12 | Render: `prompthub-api` seeded + `prompthub-web` renders Dashboard/Library with real counts (no CORS block) | `Cloud_Deployment.md` live URLs |
 

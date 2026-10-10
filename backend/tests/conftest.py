@@ -29,7 +29,6 @@ def client():
 
 @pytest.fixture(scope="session")
 def db():
-    SessionLocal.remove()
     init_db()
     with SessionLocal() as session:
         seed_all()
