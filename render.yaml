@@ -1,11 +1,12 @@
 # Render Blueprint — PromptHub Enterprise (Free-tier)
 # Docs: https://render.com/docs/blueprint-spec
+# DATABASE: Neon free PostgreSQL (permanent) — set DATABASE_URL manually on the
+#   prompthub-api service (see Cloud_Deployment.md "Option B — Neon"). The old
+#   Render free `prompthub-db` was deleted (2026-10-10 incident: dpg-* hostname
+#   unresolvable → backend crash-loop), so this blueprint no longer provisions it.
 # Free-tier notes:
 #   - Web Services on Free sleep after 15 min inactivity (cold start ~30-50s),
 #     750 hrs/month, 512 MB RAM. First request after sleep will be slow — expected.
-#   - Free PostgreSQL expires after ~90 days and is limited to 1 GB.
-#     For a permanent free DB, use Neon/Supabase free and set DATABASE_URL manually
-#     (see ops/render.md "Free-tier DB options").
 #   - Dockerfiles now respect $PORT (Render sets 10000); local dev still uses :8010.
 #   - For cheapest free deploys, use Backend as Web Service (free) + Frontend as
 #     Static Site (free, 100 GB/mo) instead of second Docker service — see below.
@@ -19,10 +20,10 @@ services:
     plan: free
     healthCheckPath: /health
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: prompthub-db
-          property: connectionString
+      # Neon (set manually on the service — never commit the secret here).
+      # Paste the Neon pooled connection string as DATABASE_URL, e.g.
+      # postgresql://USER:PASS@ep-xxx.us-east-2.aws.neon.tech/prompthub?sslmode=require
+      # (app auto-normalizes to the +psycopg driver; see backend/app/config.py).
       - key: LLM_PROVIDER
         value: mock
       - key: SEED_DEMO_DATA
@@ -50,9 +51,3 @@ services:
       - key: VITE_API_URL
         value: https://prompthub-api-56ez.onrender.com/api/v1
 
-databases:
-  - name: prompthub-db
-    plan: free
-    databaseName: prompthub
-    user: prompthub
-    # Free DB expires — see ops/render.md for Neon/Supabase alternative

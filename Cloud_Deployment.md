@@ -44,9 +44,9 @@ Complete guide for deploying PromptHub Enterprise to Render free-tier.
 
 ### 1. Database
 
-**Option A — Render Free PostgreSQL (quickest)**
+**Option A — Render Free PostgreSQL — RETIRED 2026-10-10**
 
-The blueprint creates this automatically. Skip to step 2.
+Formerly auto-created by the blueprint; the free instance was deleted (DNS unresolvable → backend crash-loop, exit 3). `render.yaml` no longer provisions it. Use Option B.
 
 **Option B — Neon Free (permanent, recommended)**
 
@@ -57,6 +57,7 @@ The blueprint creates this automatically. Skip to step 2.
    DATABASE_URL=postgresql+psycopg://user:pass@ep-xxx.us-east-2.aws.neon.cloud/prompthub
    ```
 4. Delete the `databases:` block from `render.yaml` if using Neon
+   (done — removed 2026-10-10 after the free instance was deleted).
 
 ### 2. Backend (Web Service)
 
