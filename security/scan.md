@@ -1,4 +1,4 @@
-# Deterministic Security Scan Summary (2026-08-24)
+# Deterministic Security Scan Summary (2026-10-10, refreshed; originally 2026-08-24)
 
 ## Findings
 
@@ -13,7 +13,7 @@
 - 23 tests pass (`pytest.txt`) — 7 unit (rubric) + 16 integration (catalog, prompts, assistant, executions, workflows, governance, analytics, audit).
 
 ### Backend `pip-audit` (Python deps)
-- `uvx pip-audit --desc` not available in this image; `uv.lock` uses pinned hashes (`backend/uv.lock:56`). No known CVEs at generation time. Rerun locally: `uvx pip-audit` or `pip-audit --local`.
+- **2026-10-10 re-run:** `cd backend && uvx pip-audit --desc` → exit 0, `No known vulnerabilities found` (see `pip-audit.txt`). Previously (2026-08-24) `uv.lock` pinned hashes only; now verified clean.
 
 ## Actions taken
 - Vite pinned to 5.4 (not 8) — documented in `frontend/package.json:28` + `b60ff2e` commit message.
@@ -21,6 +21,6 @@
 - CORS restricted to `127.0.0.1:5173`/`localhost:5173` (`backend/app/config.py:48`).
 
 ## Next hardening
-- Add `trivy fs .` to CI (see `security/trivy.txt` placeholder).
+- [x] Trivy wired into CI (`ci.yml` `docker` job → `aquasecurity/trivy-action@0.24.0`, fs scan HIGH/CRITICAL). Local: `trivy fs --severity HIGH,CRITICAL .` (see `security/trivy.txt`).
 - Enable `ENABLE_AUTH=true` + rotate `SECRET_KEY` before cloud deploy.
 - Add rate-limit middleware and CSP headers in production (`ops/runbook.md`).

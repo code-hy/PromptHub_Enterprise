@@ -57,9 +57,21 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build full stack (compose)
         run: docker compose config -q && docker compose build
-      # Uncomment to push on pass — configure RENDER_API_KEY / DockerHub secrets first:
-      # - name: Deploy to Render (example)
-      #   if: success()
-      #   run: curl -X POST "$RENDER_DEPLOY_HOOK"
-      #   env:
-      #     RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      - name: Trivy filesystem scan (HIGH,CRITICAL)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          format: table
+          exit-code: "0"
+      - name: Deploy to Render (auto-deploy on pass)
+        if: success()
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "RENDER_DEPLOY_HOOK not set — skipping deploy (Render auto-deploys on push if enabled)."
+            exit 0
+          fi
+          curl -fS -X POST "$RENDER_DEPLOY_HOOK"
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}

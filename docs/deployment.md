@@ -20,6 +20,6 @@ Copy the live URLs into `ops/deployment.md` as proof (screenshots or `curl` outp
 docker compose up --build # postgres + qdrant + ollama + backend:8010 + frontend:5173
 ```
 
-## CI-driven deploy hook (optional)
+## CI-driven deploy hook (active)
 
-Set `RENDER_DEPLOY_HOOK` in GitHub secrets; `.github/workflows/ci.yml` posts to it on `main` after tests pass.
+`.github/workflows/ci.yml` `docker` job (gated on `main` push, after backend+frontend pass): `docker compose config -q && docker compose build`, Trivy fs scan (HIGH/CRITICAL, non-blocking), then `POST $RENDER_DEPLOY_HOOK` on success — gracefully skips with a notice if the `RENDER_DEPLOY_HOOK` secret is unset (Render auto-deploys on push when auto-deploy is ON).
