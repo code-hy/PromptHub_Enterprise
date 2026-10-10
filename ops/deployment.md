@@ -30,7 +30,11 @@ open https://prompthub-web.onrender.com   # frontend static
 
 - [x] Frontend URL: `https://prompthub-web.onrender.com`
   - `curl -m 30 https://prompthub-web.onrender.com` → `HTTP 200` in ~0.26 s, body contains `PromptHub Enterprise` (verified 2026-10-10).
-  - Screenshot: `screenshots/render-frontend.png` — **TODO: capture Library + prompt detail and save under that path** (folder currently has local-only PNGs).
+  - Screenshots (captured 2026-10-10 via automated browser — backend was unreachable, so Dashboard shows the loading/empty state, Assistant + Builder render fully):
+    - `screenshots/render-dashboard-2026-10-10.png` — Dashboard (API pending → loading spinner; proves static frontend awake)
+    - `screenshots/render-assistant-2026-10-10.png` — Prompt Assistant page
+    - `screenshots/render-builder-2026-10-10.png` — New prompt Builder page
+  - Still TODO: re-capture `screenshots/render-frontend.png` (Library + prompt detail with real counts) after the backend is revived — that is the 2/2 proof shot.
 - [ ] Backend URL: `https://prompthub-api-56ez.onrender.com` — **DOWN at audit time**
   - `curl -m 60/90 https://prompthub-api-56ez.onrender.com/health` → timeout after 60 s and 90 s (curl exit 28) on 2026-10-10; `webfetch /health` → 503 earlier same day.
   - Last known good: seeded (`prompt_count=68, published_count=44, execution_count=320` via `GET /api/v1/analytics/overview`) before free-tier sleep; see `Cloud_Deployment.md:7-14`.
