@@ -38,3 +38,13 @@ def test_seed_audit_idempotent(db):
     seed_all()  # already seeded → early return, no duplicate audit rows
     db.expire_all()
     assert _audit_count(db) == before
+
+
+def test_seed_audit_endpoint_backfills(client):
+    # Live scenario: DB seeded before audit seeding existed → endpoint backfills
+    # idempotently (second call reports already_seeded with stable count).
+    first = client.post("/api/v1/admin/seed-audit").json()
+    assert first["audit_events"] >= 250
+    second = client.post("/api/v1/admin/seed-audit").json()
+    assert second["status"] == "already_seeded"
+    assert second["audit_events"] == first["audit_events"]

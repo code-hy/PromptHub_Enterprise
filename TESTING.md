@@ -19,7 +19,7 @@ frontend/
 ```bash
 cd backend
 uv run ruff check app tests          # lint
-uv run pytest -q                     # all 26 tests
+uv run pytest -q                     # all 27 tests
 uv run pytest tests/unit -q          # unit only (rubric)
 uv run pytest tests/integration -q   # integration only (API + DB)
 ```

@@ -95,7 +95,7 @@ def seed_all() -> None:
         _seed_knowledge_sources(db, prompts, docs)
         _seed_workflows(db, prompts)
         _seed_analytics_rows(db, prompts)
-        _seed_audit_trail(db)
+        seed_audit_trail(db)
         db.commit()
         logger.info(
             "Seeded %d users, %d prompts, %d policies, %d documents, %d workflows",
@@ -341,7 +341,7 @@ def _seed_workflows(db: Session, prompts: list[Prompt]) -> None:
     db.flush()
 
 
-def _seed_audit_trail(db: Session) -> None:
+def seed_audit_trail(db: Session) -> None:
     """Pre-populate a believable audit trail so the Audit Log demo is alive.
 
     Mirrors the lifecycle the seed data claims (created → submitted → approved →

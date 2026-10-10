@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..ids import next_user_id
-from ..models import Prompt, User
+from ..models import AuditEvent, Prompt, User
 from ..schemas.api import UserSummary
 from ..security import hash_password, require_role
 
@@ -117,6 +117,22 @@ def seed_database(db: Session = Depends(get_db)):
     prompt_count = db.scalar(select(func.count()).select_from(Prompt)) or 0
     user_count = db.scalar(select(func.count()).select_from(User)) or 0
     return {"status": "seeded", "prompt_count": prompt_count, "user_count": user_count}
+
+
+@router.post("/seed-audit", response_model=dict)
+def seed_audit(db: Session = Depends(get_db)):
+    """Backfill the demo audit trail on an already-seeded database.
+
+    Idempotent (skips when seed markers exist). Used on Render/Neon where the
+    data seed ran before audit seeding existed — no wipe/redeploy needed.
+    """
+    from ..seed import seed_audit_trail
+
+    before = db.scalar(select(func.count()).select_from(AuditEvent)) or 0
+    seed_audit_trail(db)
+    db.commit()
+    after = db.scalar(select(func.count()).select_from(AuditEvent)) or 0
+    return {"status": "seeded" if after > before else "already_seeded", "audit_events": after}
 
 
 @router.delete("/users/{user_id}", response_model=dict)

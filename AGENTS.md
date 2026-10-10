@@ -38,7 +38,7 @@ This file explains how AI agents were used to build PromptHub Enterprise, what w
 
 - **No secret commits** — `git diff`/`status` inspected before every commit; credentials, `.env`, `prompthub.db` ignored.
 - **PowerShell quoting** — never use `bash echo` for file writes; prefer `Read`+`Edit`/`Write` tools.
-- **Tests must pass** — `uv run pytest backend/tests -q` (26 tests) and `npm run build` must be green before push.
+- **Tests must pass** — `uv run pytest backend/tests -q` (27 tests) and `npm run build` must be green before push.
 - **Human review** — Henry reviews every diff in the CLI; `ENTERPRISE` prompts and RFQ gaps are tracked in `GAPS.md`.
 
 ## Reproducing the workflow

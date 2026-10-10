@@ -471,7 +471,7 @@ the seeder skips, it never duplicates).
 
 ```bash
 cd backend
-uv run pytest tests            # 26 passed: quality rubric + API integration + seed audit
+uv run pytest tests            # 27 passed: quality rubric + API integration + seed audit
 uv run ruff check app tests    # clean
 ```
 
