@@ -18,7 +18,20 @@ logger = logging.getLogger("prompthub")
 async def lifespan(app: FastAPI):
     # Always log to stdout so Render logs show it (logger alone may be filtered)
     print(f"[startup] seed_demo_data={settings.seed_demo_data} db={settings.sqlalchemy_url[:60]}...", flush=True)
-    init_db()
+    try:
+        init_db()
+    except Exception as exc:
+        # Fail fast but say WHY: the #1 Render cause is a deleted/expired free
+        # PostgreSQL (DNS for dpg-* host no longer resolves). Recreate the DB
+        # (or point DATABASE_URL at Neon) and redeploy — boot auto-seeds.
+        print(
+            "[startup] FATAL: database unreachable — check DATABASE_URL "
+            "(Render free PG expires/deletes after ~90d; recreate prompthub-db "
+            f"or use Neon). detail={exc}",
+            flush=True,
+        )
+        logger.exception("Database init failed: %s", exc)
+        raise
     # Force seed when DB is empty — handles free-tier first boot and partial-seed recovery
     # even if SEED_DEMO_DATA was mis-set. Otherwise respect the flag.
     try:

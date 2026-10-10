@@ -35,8 +35,11 @@ open https://prompthub-web.onrender.com   # frontend static
     - `screenshots/render-assistant-2026-10-10.png` — Prompt Assistant page
     - `screenshots/render-builder-2026-10-10.png` — New prompt Builder page
   - Still TODO: re-capture `screenshots/render-frontend.png` (Library + prompt detail with real counts) after the backend is revived — that is the 2/2 proof shot.
-- [ ] Backend URL: `https://prompthub-api-56ez.onrender.com` — **DOWN at audit time**
-  - `curl -m 60/90 https://prompthub-api-56ez.onrender.com/health` → timeout after 60 s and 90 s (curl exit 28) on 2026-10-10; `webfetch /health` → 503 earlier same day.
+- [ ] Backend URL: `https://prompthub-api-56ez.onrender.com` — **DOWN: crash-loop, root cause found 2026-10-10**
+  - Events: repeated `Instance failed … Exited with status 3` (9:00–9:21 PM); deploy `21c6b9c` failed the same way.
+  - Logs traceback: `psycopg.OperationalError: failed to resolve host 'dpg-da6mtuou01pc738lce40-a'` at `main.py:21 init_db()` → `Application startup failed. Exiting.` Diagnosis: Render free PG `prompthub-db` deleted/expired — not a code or seed bug.
+  - Fix (requires Render dashboard): recreate DB (or Neon), set `DATABASE_URL`, redeploy — see `TROUBLESHOOTING.md §11` (crash-loop entry). Boot auto-seeds on empty DB.
+  - `curl -m 60/90/120/150 https://prompthub-api-56ez.onrender.com/health` → timeout (curl 28) on 2026-10-10; `POST /api/v1/admin/seed` → timeout.
   - Last known good: seeded (`prompt_count=68, published_count=44, execution_count=320` via `GET /api/v1/analytics/overview`) before free-tier sleep; see `Cloud_Deployment.md:7-14`.
   - Likely cause: Render free-tier sleep + cold start, or deploy of `9aceaa3` (CORS fix) still pending / service suspended. **Do not claim 2/2 until re-verified.**
   - To re-verify:

@@ -626,3 +626,17 @@ See also `Cloud_Deployment.md` for the full deployment guide.
 - If backend logs show "Seed already present, skipping": normal, data exists
 - If backend logs show seed errors: check `DATABASE_URL` format (must use `+psycopg` not `+psycopg2`)
 - If backend logs show connection errors: DB may have expired — check Render PG status
+
+---
+
+### Backend crash-loops: `failed to resolve host 'dpg-…'` (2026-10-10 incident)
+
+**Symptom:** `prompthub-api` Events show repeated `Instance failed … Exited with status 3`; `curl /health` hangs until timeout; frontend shows 0/0/0 (now a red "Backend unreachable" banner on the Dashboard).
+
+**Cause:** The Render free PostgreSQL (`prompthub-db`) was deleted/expired — its `dpg-…` hostname no longer resolves in DNS. `init_db()` at `backend/app/main.py:21` raises `psycopg.OperationalError` during lifespan, so the app exits before serving anything. Boot now logs `[startup] FATAL: database unreachable — check DATABASE_URL …` to make this obvious.
+
+**Fix:**
+1. Render → Databases → if `prompthub-db` is gone/expired, create a new PostgreSQL **or** a permanent Neon free DB (`Cloud_Deployment.md:51-59`).
+2. Render → `prompthub-api` → Environment → set `DATABASE_URL` to the new connection string (`postgresql+psycopg://…`; Render blueprint `fromDatabase` re-links automatically only for blueprint-managed DBs).
+3. Manual Deploy → watch Logs for `[startup] prompt_count=0` → `DB empty — seeding demo data` → `seed complete — now 68 prompts`.
+4. Verify: `curl …/health` → `{"status":"ok"}` and `POST …/api/v1/admin/seed` → `{"status":"seeded","prompt_count":68}`.

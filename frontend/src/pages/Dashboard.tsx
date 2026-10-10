@@ -4,7 +4,7 @@ import { analyticsApi, executionApi, governanceApi, promptsApi } from "../api";
 import { Badge, Card, Spinner, StatCard, StatusBadge } from "../components/ui";
 
 export default function Dashboard() {
-  const { data: overview, isLoading: loadingOv } = useQuery({
+  const { data: overview, isLoading: loadingOv, isError: overviewError } = useQuery({
     queryKey: ["analytics-overview"],
     queryFn: analyticsApi.overview,
   });
@@ -19,6 +19,21 @@ export default function Dashboard() {
   });
 
   if (loadingOv) return <Spinner label="Loading dashboard…" />;
+
+  // Don't silently render 0s when the API is down (2026-10-10 incident:
+  // dead DATABASE_URL crash-looped the backend and the dashboard showed
+  // 0/0/0 with "No … yet." — indistinguishable from an empty DB).
+  if (overviewError)
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+        <h1 className="text-lg font-semibold text-red-800">Backend unreachable</h1>
+        <p className="mt-1 text-sm text-red-700">
+          The API did not respond (the service may be asleep, crash-looping, or its
+          database is gone). Check the Render service status, wait for cold start
+          (~50 s), then retry. Details: <code>TROUBLESHOOTING.md §11</code>.
+        </p>
+      </div>
+    );
 
   const top = (overview?.top_prompts ?? []) as Array<Record<string, string | number>>;
 
