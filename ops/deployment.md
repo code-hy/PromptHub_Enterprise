@@ -28,38 +28,31 @@ open https://prompthub-web.onrender.com   # frontend static
 
 ## Proof (audit 2026-10-10 — honest status)
 
+**RESOLVED 2026-10-10 evening:** Neon wired (`DATABASE_URL` on `prompthub-api`), service redeployed, boot auto-seeded. All green.
+
 - [x] Frontend URL: `https://prompthub-web.onrender.com`
   - `curl -m 30 https://prompthub-web.onrender.com` → `HTTP 200` in ~0.26 s, body contains `PromptHub Enterprise` (verified 2026-10-10).
-  - Screenshots (captured 2026-10-10 via automated browser — backend was unreachable, so Dashboard shows the loading/empty state, Assistant + Builder render fully):
-    - `screenshots/render-dashboard-2026-10-10.png` — Dashboard (API pending → loading spinner; proves static frontend awake)
-    - `screenshots/render-assistant-2026-10-10.png` — Prompt Assistant page
-    - `screenshots/render-builder-2026-10-10.png` — New prompt Builder page
-  - Still TODO: re-capture `screenshots/render-frontend.png` (Library + prompt detail with real counts) after the backend is revived — that is the 2/2 proof shot.
-- [ ] Backend URL: `https://prompthub-api-56ez.onrender.com` — **DOWN: crash-loop, root cause found 2026-10-10**
-  - Events: repeated `Instance failed … Exited with status 3` (9:00–9:21 PM); deploy `21c6b9c` failed the same way.
-  - Logs traceback: `psycopg.OperationalError: failed to resolve host 'dpg-da6mtuou01pc738lce40-a'` at `main.py:21 init_db()` → `Application startup failed. Exiting.` Diagnosis: Render free PG `prompthub-db` deleted/expired — not a code or seed bug.
-  - Fix (requires Render dashboard): recreate DB (or Neon), set `DATABASE_URL`, redeploy — see `TROUBLESHOOTING.md §11` (crash-loop entry). Boot auto-seeds on empty DB.
-  - `curl -m 60/90/120/150 https://prompthub-api-56ez.onrender.com/health` → timeout (curl 28) on 2026-10-10; `POST /api/v1/admin/seed` → timeout.
-  - Last known good: seeded (`prompt_count=68, published_count=44, execution_count=320` via `GET /api/v1/analytics/overview`) before free-tier sleep; see `Cloud_Deployment.md:7-14`.
-  - Likely cause: Render free-tier sleep + cold start, or deploy of `9aceaa3` (CORS fix) still pending / service suspended. **Do not claim 2/2 until re-verified.**
-  - To re-verify:
-  ```bash
-  curl -m 120 https://prompthub-api-56ez.onrender.com/health
-  # expect {"status":"ok", ...} (may take 30-50 s cold start; retry once)
-
-  curl -m 120 https://prompthub-api-56ez.onrender.com/api/v1/analytics/overview
-  # expect {"prompt_count":68, "published_count":44, ...}
+  - Seeded proof shots (captured 2026-10-10 via automated browser against the live Neon-backed deploy):
+    - `screenshots/render-seeded-dashboard.png` — Dashboard 68 prompts / 44 published / 320 executions / 4.65★
+    - `screenshots/render-seeded-library.png` — Library, 68 prompts, filters + pagination
+    - `screenshots/render-seeded-workflows.png` — 5 PUBLISHED promptbooks with steps
+    - `screenshots/render-seeded-analytics.png` — 320 executions, trend, top-prompts, category pie
+    - `screenshots/render-seeded-governance.png` — 68 total, risk distribution, active policies
+  - Outage-state shots (same day, backend down): `screenshots/render-dashboard-2026-10-10.png`, `render-assistant-2026-10-10.png`, `render-builder-2026-10-10.png`.
+- [x] Backend URL: `https://prompthub-api-56ez.onrender.com`
+  - `curl /health` output (verified 2026-10-10):
   ```
-  Then paste outputs below, check this box, and commit:
-  - `curl /health` output:
+  {"status":"ok","app":"PromptHub Enterprise","provider":"mock"}
   ```
-  (paste — currently TIMEOUT, 2026-10-10)
+  - `GET /api/v1/analytics/overview` (verified 2026-10-10):
   ```
-  - `GET /api/v1/analytics/overview` snippet:
+  {"prompt_count":68,"published_count":44,"execution_count":320,"success_rate":100.0,
+   "avg_rating":4.65,"rating_count":8,"estimated_time_saved_minutes":9560.0,
+   "avg_latency_ms":340.0,"avg_tokens":420,
+   "status_distribution":[{"PUBLISHED":44},{"APPROVED":8},{"DRAFT":8},{"UNDER_REVIEW":4},{"DEPRECATED":4}]}
   ```
-  (paste — last known: prompt_count=68, published_count=44, execution_count=320)
-  ```
-- [x] DB: Render PostgreSQL `prompthub-db` — `DATABASE_URL` is `sync: false` (secret, via `render.yaml` `fromDatabase`). Free plan expires ~90 days — see `Cloud_Deployment.md:222-224`.
+  - Earlier incident (same day): crash-loop exit 3, `psycopg.OperationalError: failed to resolve host 'dpg-da6mtuou01pc738lce40-a'` — Render free PG deleted. Fixed via Neon; see `TROUBLESHOOTING.md §11` crash-loop entry.
+- [x] DB: Neon free PostgreSQL `gentle-bread-89126697` — `DATABASE_URL` set manually on the service (secret, never committed). `render.yaml` no longer provisions Render PG.
 
 ## Rollback / logs
 
